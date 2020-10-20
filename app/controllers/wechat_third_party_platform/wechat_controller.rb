@@ -6,7 +6,7 @@ module WechatThirdPartyPlatform
       message = WechatThirdPartyPlatform::MessageEncryptor.decrypt_message(request.body.read)
       # {"xml"=>{"AppId"=>"wx6049dd9d0df6e593", "CreateTime"=>"1603094188", "InfoType"=>"component_verify_ticket", "ComponentVerifyTicket"=>"ticket@@@Hcp1sWsxoI7cuskY_boQJLDC6RPKc5PR7v7SzeHjwFv2CZAyEJCSOEAptlmRLuFmLMyEcYoMpcVPFr4w5jSn9Q"}}
       msg_hash = Hash.from_xml(message)
-      wtpp_verify_ticket = message["xml"]["ComponentVerifyTicket"]
+      wtpp_verify_ticket = msg_hash["xml"]["ComponentVerifyTicket"]
       Rails.cache.write("wtpp_verify_ticket", wtpp_verify_ticket, expires_in: 115.minutes)
       render plain: "success"
     end

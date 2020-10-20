@@ -8,11 +8,14 @@ module WechatThirdPartyPlatform
         access_token = Rails.cache.fetch(ACCESS_TOKEN_CACHE_KEY)
 
         return access_token if access_token
+        wtpp_verify_ticket = Rails.cache.fetch("wtpp_verify_ticket")
+
+        raise "component verify ticket not exist" unless wtpp_verify_ticket
 
         body = {
           component_appid: WechatThirdPartyPlatform.appid,
           component_appsecret: WechatThirdPartyPlatform.appsecret,
-          component_verify_ticket: Rails.cache.fetch("wtpp_verify_ticket")
+          component_verify_ticket: wtpp_verify_ticket
         }
 
         resp = self.post("/cgi-bin/component/api_component_token", { body:  JSON.pretty_generate(body) })
