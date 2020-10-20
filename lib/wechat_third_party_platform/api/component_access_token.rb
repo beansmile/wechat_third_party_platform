@@ -4,6 +4,7 @@ module WechatThirdPartyPlatform
     ACCESS_TOKEN_CACHE_KEY = "wtpp_access_token"
 
     class << self
+      # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/component_access_token.html
       def get
         access_token = Rails.cache.fetch(ACCESS_TOKEN_CACHE_KEY)
 
