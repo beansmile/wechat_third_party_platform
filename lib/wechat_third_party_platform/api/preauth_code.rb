@@ -4,6 +4,7 @@ module WechatThirdPartyPlatform
     PRE_AUTH_CODE_CACHE_KEY = "wtpp_pre_auth_code"
 
     class << self
+      # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/pre_auth_code.html
       def api_create_preauthcode
 
         pre_auth_code = Rails.cache.fetch(PRE_AUTH_CODE_CACHE_KEY)
