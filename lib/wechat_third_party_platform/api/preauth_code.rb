@@ -1,4 +1,4 @@
-module WechatThirdPartyPlatform
+module WechatThirdPartyPlatform::API
   class PreauthCode < Base
 
     PRE_AUTH_CODE_CACHE_KEY = "wtpp_pre_auth_code"
@@ -11,7 +11,7 @@ module WechatThirdPartyPlatform
 
         return pre_auth_code if pre_auth_code
 
-        access_token = WechatThirdPartyPlatform::ComponentAccessToken.get
+        access_token = WechatThirdPartyPlatform::API::ComponentAccessToken.get
 
         body = {
           component_appid: WechatThirdPartyPlatform.appid,
