@@ -1,4 +1,4 @@
-module WechatThirdPartyPlatform
+module WechatThirdPartyPlatform::API
   class ComponentAccessToken < Base
 
     ACCESS_TOKEN_CACHE_KEY = "wtpp_access_token"

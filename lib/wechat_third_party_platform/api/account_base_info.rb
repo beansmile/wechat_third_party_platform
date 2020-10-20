@@ -1,4 +1,4 @@
-module WechatThirdPartyPlatform
+module WechatThirdPartyPlatform::API
   class AccountBaseInfo < Base
 
     class << self

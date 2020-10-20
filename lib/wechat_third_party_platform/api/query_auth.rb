@@ -1,4 +1,4 @@
-module WechatThirdPartyPlatform
+module WechatThirdPartyPlatform::API
   class QueryAuth < Base
 
     PRE_AUTH_CODE_CACHE_KEY = "wtpp_pre_auth_code"
@@ -7,7 +7,7 @@ module WechatThirdPartyPlatform
       # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorization_info.html
       def api_query_auth(auth_code)
 
-        access_token = WechatThirdPartyPlatform::ComponentAccessToken.get
+        access_token = WechatThirdPartyPlatform::API::ComponentAccessToken.get
 
         body = {
           component_appid: WechatThirdPartyPlatform.appid,
