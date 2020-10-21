@@ -10,20 +10,6 @@ module WechatThirdPartyPlatform
 
     base_uri "https://api.weixin.qq.com"
 
-    @@logger = ::Logger.new("./log/wechat_third_party_platform.log")
-
-    HTTP_ERRORS = [
-      EOFError,
-      Errno::ECONNRESET,
-      Errno::EINVAL,
-      Net::HTTPBadResponse,
-      Net::HTTPHeaderSyntaxError,
-      Net::ProtocolError,
-      Timeout::Error
-    ]
-
-    TIMEOUT = 5
-
     attr_accessor :access_token
 
     def initialize(access_token)
@@ -41,18 +27,18 @@ module WechatThirdPartyPlatform
 
         uuid = SecureRandom.uuid
 
-        @@logger.debug("request[#{uuid}]: method: #{method}, url: #{path}, body: #{body}, headers: #{headers}")
+        WechatThirdPartyPlatform::LOGGER.debug("request[#{uuid}]: method: #{method}, url: #{path}, body: #{body}, headers: #{headers}")
 
         response = begin
-                     resp = self.class.send(method, path, body: JSON.pretty_generate(body), headers: headers, timeout: TIMEOUT).body
+                     resp = self.class.send(method, path, body: JSON.pretty_generate(body), headers: headers, timeout: WechatThirdPartyPlatform::TIMEOUT).body
                      JSON.parse(resp)
                    rescue JSON::ParserError
                      resp
-                   rescue *HTTP_ERRORS
+                   rescue *WechatThirdPartyPlatform::HTTP_ERRORS
                      { "errmsg" => "连接超时" }
                    end
 
-        @@logger.debug("response[#{uuid}]: #{response}")
+        WechatThirdPartyPlatform::LOGGER.debug("response[#{uuid}]: #{response}")
 
         response
       end
