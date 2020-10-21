@@ -29,8 +29,8 @@ Create config/initializers/wechat_third_party_platform.rb and put following conf
 # required
 //登录授权的发起页域名需要跟在第三方平台配置域名一致
 WechatThirdPartyPlatform.auth_redirect_url = 'http://xifengzhu.ngrok.io/wtpp/wechat/auth_callback'
-WechatThirdPartyPlatform.appid = 'wxxxxxx'
-WechatThirdPartyPlatform.appsecret = 'xxxxxxxxxxx'
+WechatThirdPartyPlatform.component_appid = 'wxxxxxx'
+WechatThirdPartyPlatform.component_appsecret = 'xxxxxxxxxxx'
 // 消息校验Token
 WechatThirdPartyPlatform.message_token = 'xxxxxx'
 // 消息加解密Key

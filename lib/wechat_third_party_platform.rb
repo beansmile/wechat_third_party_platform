@@ -6,19 +6,34 @@ require "wechat_third_party_platform/client"
 module WechatThirdPartyPlatform
   include HTTParty
 
+  base_uri "https://api.weixin.qq.com"
+
+  LOGGER = ::Logger.new("./log/wechat_third_party_platform.log")
+
   ACCESS_TOKEN_CACHE_KEY = "wtpp_access_token"
   PRE_AUTH_CODE_CACHE_KEY = "wtpp_pre_auth_code"
+
+  HTTP_ERRORS = [
+    EOFError,
+    Errno::ECONNRESET,
+    Errno::EINVAL,
+    Net::HTTPBadResponse,
+    Net::HTTPHeaderSyntaxError,
+    Net::ProtocolError,
+    Timeout::Error
+  ]
+
   TIMEOUT = 5
 
   class<< self
-    attr_accessor :appid, :appsecret, :message_token, :message_key, :auth_redirect_url
+    attr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url
 
     # 令牌
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/component_access_token.html
     def component_access_token(component_verify_ticket:)
       http_post("/cgi-bin/component/api_component_token", { body: {
-        component_appid: appid,
-        component_appsecret: appsecret,
+        component_appid: component_appid,
+        component_appsecret: component_appsecret,
         component_verify_ticket: component_verify_ticket
       } }, false)
     end
@@ -31,7 +46,7 @@ module WechatThirdPartyPlatform
       return pre_auth_code if pre_auth_code
 
       resp = http_post("/cgi-bin/component/api_create_preauthcode", body: {
-        component_appid: appid
+        component_appid: component_appid
       })
 
       pre_auth_code = resp["pre_auth_code"]
@@ -45,7 +60,7 @@ module WechatThirdPartyPlatform
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/api_get_authorizer_info.html
     def api_get_authorizer_info(component_appid:)
       http_post("/cgi-bin/component/api_get_authorizer_info", body: {
-        component_appid: appid,
+        component_appid: component_appid,
         authorizer_appid: authorizer_appid
       })
     end
@@ -54,12 +69,23 @@ module WechatThirdPartyPlatform
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorization_info.html
     def api_query_auth(authorization_code:)
       http_post("/cgi-bin/component/api_query_auth", body: {
-        component_appid: appid,
+        component_appid: component_appid,
         authorization_code: authorization_code
       })
     end
 
-    [:post].each do |method|
+    # 小程序登录
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/WeChat_login.html
+    def jscode_to_session(appid:, js_code:)
+      http_get("/sns/component/jscode2session", body: {
+        appid: appid,
+        js_code: js_code,
+        grant_type: "authorization_code",
+        component_appid: component_appid
+      })
+    end
+
+    [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
         body = (options[:body] || {})
         headers = (options[:headers] || {}).reverse_merge({
@@ -86,7 +112,7 @@ module WechatThirdPartyPlatform
 
         uuid = SecureRandom.uuid
 
-        @@logger.debug("request[#{uuid}]: method: #{method}, url: #{path}, body: #{body}, headers: #{headers}")
+        LOGGER.debug("request[#{uuid}]: method: #{method}, url: #{path}, body: #{body}, headers: #{headers}")
 
         response = begin
                      resp = self.class.send(method, path, body: JSON.pretty_generate(body), headers: headers, timeout: TIMEOUT).body
@@ -97,7 +123,7 @@ module WechatThirdPartyPlatform
                      { "errmsg" => "连接超时" }
                    end
 
-        @@logger.debug("response[#{uuid}]: #{response}")
+        LOGGER.debug("response[#{uuid}]: #{response}")
 
         response
       end
