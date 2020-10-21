@@ -7,6 +7,7 @@ module WechatThirdPartyPlatform
     include HTTParty
     include WechatThirdPartyPlatform::API::AccountBaseInfo
     include WechatThirdPartyPlatform::API::Code
+    include WechatThirdPartyPlatform::API::UploadMedia
 
     base_uri "https://api.weixin.qq.com"
 
@@ -23,6 +24,7 @@ module WechatThirdPartyPlatform
           "Content-Type" => "application/json",
           "Accept-Encoding" => "*"
         })
+        raw_body = headers["Content-Type"] == "multipart/form-data" # 上传临时素材的Content-Type是multipart/form-data，body不需要生成字符串
         path = "#{path}?access_token=#{access_token}" if need_access_token
 
         uuid = SecureRandom.uuid
@@ -30,7 +32,7 @@ module WechatThirdPartyPlatform
         WechatThirdPartyPlatform::LOGGER.debug("request[#{uuid}]: method: #{method}, url: #{path}, body: #{body}, headers: #{headers}")
 
         response = begin
-                     resp = self.class.send(method, path, body: JSON.pretty_generate(body), headers: headers, timeout: WechatThirdPartyPlatform::TIMEOUT).body
+                     resp = self.class.send(method, path, body: raw_body ? body : JSON.pretty_generate(body), headers: headers, timeout: WechatThirdPartyPlatform::TIMEOUT).body
                      JSON.parse(resp)
                    rescue JSON::ParserError
                      resp
