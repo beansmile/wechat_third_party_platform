@@ -34,7 +34,7 @@ WechatThirdPartyPlatform.component_appsecret = 'xxxxxxxxxxx'
 // 消息校验Token
 WechatThirdPartyPlatform.message_token = 'xxxxxx'
 // 消息加解密Key
-WechatThirdPartyPlatform.message_key = 'p9FPxb51DGdUEdNexXpDgxS3v41YkLgLp5pgMoa1dR6'
+WechatThirdPartyPlatform.message_key = 'xxxxxx'
 ```
 
 ## Contributing
