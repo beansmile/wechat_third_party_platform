@@ -1,9 +1,12 @@
-require "httparty"
-require "json"
+# frozen_string_literal: true
 
-module WechatThirdPartyPlatform::API
-  class Base
+require "httparty"
+
+module WechatThirdPartyPlatform
+  class Client
     include HTTParty
+    include WechatThirdPartyPlatform::API::AccountBaseInfo
+    include WechatThirdPartyPlatform::API::Code
 
     base_uri "https://api.weixin.qq.com"
 
@@ -21,14 +24,20 @@ module WechatThirdPartyPlatform::API
 
     TIMEOUT = 5
 
+    attr_accessor :access_token
+
+    def initialize(access_token)
+      @access_token = access_token
+    end
+
     [:get, :post].each do |method|
-      define_singleton_method "http_#{method}" do |path, options = {}, need_access_token = true|
+      define_method "http_#{method}" do |path, options = {}, need_access_token = true|
         body = (options[:body] || {})
         headers = (options[:headers] || {}).reverse_merge({
           "Content-Type" => "application/json",
           "Accept-Encoding" => "*"
         })
-        path = "#{path}?access_token=#{WechatThirdPartyPlatform::API::ComponentAccessToken.get}" if need_access_token
+        path = "#{path}?access_token=#{access_token}" if need_access_token
 
         uuid = SecureRandom.uuid
 
