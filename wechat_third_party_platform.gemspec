@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.version     = WechatThirdPartyPlatform::VERSION
   spec.authors     = ["leif"]
   spec.email       = ["leif@beansmile.com"]
-  spec.homepage    = "https://github.com/xifengzhu/wechat_third_party_platform"
+  spec.homepage    = "https://github.com/beansmile/wechat_third_party_platform"
   spec.summary     = "微信第三方平台接口"
   spec.description = "微信第三方平台接口"
   spec.license     = "MIT"
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "https://github.com/xifengzhu/wechat_third_party_platform"
+    spec.metadata["allowed_push_host"] = "https://github.com/beansmile/wechat_third_party_platform"
   else
     raise "RubyGems 2.0 or newer is required to protect against " \
       "public gem pushes."
