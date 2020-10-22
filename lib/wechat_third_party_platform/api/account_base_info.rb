@@ -9,7 +9,7 @@ module WechatThirdPartyPlatform::API
 
     # 设置服务器域名
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/Server_Address_Configuration.html
-    def modify_domain(aciton:, requestdomain: [], wsrequestdomain: [], uploaddomain: [], downloaddomain: [])
+    def modify_domain(aciton:, requestdomain: nil, wsrequestdomain: nil, uploaddomain: nil, downloaddomain: nil)
       body = {
         action: action,
         requestdomain: requestdomain,
@@ -22,7 +22,7 @@ module WechatThirdPartyPlatform::API
 
     # 设置业务域名
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/setwebviewdomain.html
-    def setwebviewdomain(action: nil, webviewdomain: [])
+    def setwebviewdomain(action: nil, webviewdomain: nil)
       http_post("/wxa/setwebviewdomain", body: {
         action: action,
         webviewdomain: webviewdomain,

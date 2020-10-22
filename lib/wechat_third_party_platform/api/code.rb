@@ -19,7 +19,7 @@ module WechatThirdPartyPlatform::API
 
     # 提交审核
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code/submit_audit.html
-    def submit_audit(item_list: [], preview_info: {}, version_desc: nil, feedback_info: nil, feedback_stuff: nil, ugc_declare: {})
+    def submit_audit(item_list: nil, preview_info: nil, version_desc: nil, feedback_info: nil, feedback_stuff: nil, ugc_declare: nil)
       http_post("/wxa/submit_audit", body: {
         item_list: item_list,
         preview_info: preview_info,
