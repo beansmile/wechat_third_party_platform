@@ -28,6 +28,19 @@ module WechatThirdPartyPlatform
   class<< self
     attr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url
 
+    def get_component_access_token
+      access_token = Rails.cache.fetch(ACCESS_TOKEN_CACHE_KEY)
+
+      if access_token.nil?
+        component_verify_ticket = Rails.cache.fetch("wtpp_verify_ticket")
+        raise "component verify ticket not exist" unless component_verify_ticket
+        resp = component_access_token(component_verify_ticket)
+        access_token = resp["component_access_token"]
+        Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, access_token, expires_in: 115.minutes)
+      end
+      access_token
+    end
+
     # 令牌
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/component_access_token.html
     def component_access_token(component_verify_ticket:)
@@ -94,20 +107,7 @@ module WechatThirdPartyPlatform
         })
 
         if need_access_token
-          access_token = Rails.cache.fetch(ACCESS_TOKEN_CACHE_KEY)
-
-          if access_token.nil?
-            component_verify_ticket = Rails.cache.fetch("wtpp_verify_ticket")
-
-            raise "component verify ticket not exist" unless component_verify_ticket
-
-            resp = component_access_token(component_verify_ticket: component_verify_ticket)
-            token = resp["component_access_token"]
-
-            Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, token, expires_in: 115.minutes)
-          end
-
-          path = "#{path}?component_access_token=#{access_token}"
+          path = "#{path}?component_access_token=#{get_component_access_token}"
         end
 
         uuid = SecureRandom.uuid
