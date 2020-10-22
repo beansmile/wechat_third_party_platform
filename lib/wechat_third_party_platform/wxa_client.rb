@@ -3,7 +3,7 @@
 require "httparty"
 
 module WechatThirdPartyPlatform
-  class Client
+  class WxaClient
     include HTTParty
     include WechatThirdPartyPlatform::API::AccountBaseInfo
     include WechatThirdPartyPlatform::API::Code
