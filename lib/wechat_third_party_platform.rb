@@ -34,7 +34,7 @@ module WechatThirdPartyPlatform
       if access_token.nil?
         component_verify_ticket = Rails.cache.fetch("wtpp_verify_ticket")
         raise "component verify ticket not exist" unless component_verify_ticket
-        resp = component_access_token(component_verify_ticket)
+        resp = component_access_token(component_verify_ticket: component_verify_ticket)
         access_token = resp["component_access_token"]
         Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, access_token, expires_in: 115.minutes)
       end
