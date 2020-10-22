@@ -34,7 +34,7 @@ module WechatThirdPartyPlatform
       if access_token.nil?
         component_verify_ticket = Rails.cache.fetch("wtpp_verify_ticket")
         raise "component verify ticket not exist" unless component_verify_ticket
-        resp = component_access_token(component_verify_ticket)
+        resp = component_access_token(component_verify_ticket: component_verify_ticket)
         access_token = resp["component_access_token"]
         Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, access_token, expires_in: 115.minutes)
       end
@@ -87,6 +87,15 @@ module WechatThirdPartyPlatform
       })
     end
 
+    def refresh_authorizer_access_token(authorizer_appid:, authorizer_refresh_token:)
+      http_post("/cgi-bin/component/api_authorizer_token", { body: {
+        component_appid: component_appid,
+        component_access_token: get_component_access_token,
+        authorizer_appid: authorizer_appid,
+        authorizer_refresh_token: authorizer_refresh_token
+      } })
+    end
+
     # 小程序登录
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/WeChat_login.html
     def jscode_to_session(appid:, js_code:)
@@ -115,7 +124,7 @@ module WechatThirdPartyPlatform
         LOGGER.debug("request[#{uuid}]: method: #{method}, url: #{path}, body: #{body}, headers: #{headers}")
 
         response = begin
-                     resp = self.class.send(method, path, body: JSON.pretty_generate(body), headers: headers, timeout: TIMEOUT).body
+                     resp = self.send(method, path, body: JSON.pretty_generate(body), headers: headers, timeout: TIMEOUT).body
                      JSON.parse(resp)
                    rescue JSON::ParserError
                      resp
