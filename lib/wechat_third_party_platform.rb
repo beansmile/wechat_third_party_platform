@@ -109,7 +109,7 @@ module WechatThirdPartyPlatform
 
     [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
-        body = (options[:body] || {})
+        body = (options[:body] || {}).select { |_, v| !v.nil? }
         headers = (options[:headers] || {}).reverse_merge({
           "Content-Type" => "application/json",
           "Accept-Encoding" => "*"

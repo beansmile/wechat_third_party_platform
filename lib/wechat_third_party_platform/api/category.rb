@@ -15,7 +15,7 @@ module WechatThirdPartyPlatform::API
 
     # 添加类目
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/category/addcategory.html
-    def addcategory(categories: [])
+    def addcategory(categories:)
       http_post("/cgi-bin/wxopen/addcategory", body: {
         categories: categories
       })
