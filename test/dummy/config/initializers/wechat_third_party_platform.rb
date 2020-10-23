@@ -1,5 +1,10 @@
-# WechatThirdPartyPlatform.auth_redirect_url = 'http://xifengzhu.ngrok.io/wtpp/wechat/auth_callback'
-WechatThirdPartyPlatform.component_appid = ENV['COMPONENT_APPID']
-WechatThirdPartyPlatform.component_appsecret = ENV['COMPONENT_APPSECRET']
-WechatThirdPartyPlatform.message_token = ENV['MESSAGE_TOKEN']
-WechatThirdPartyPlatform.message_key = ENV['MESSAGE_KEY']
+host = Rails.application.credentials.dig(Rails.env.to_sym, :host)
+config = Rails.application.credentials.dig(Rails.env.to_sym, :wechat_third_party_platform) || {}
+
+WechatThirdPartyPlatform.auth_redirect_url = "#{host}/wtpp/wechat/auth_callback"
+WechatThirdPartyPlatform.component_appid = config[:component_appid]
+WechatThirdPartyPlatform.component_appsecret = config[:component_appsecret]
+WechatThirdPartyPlatform.message_token = config[:message_token]
+WechatThirdPartyPlatform.message_key = config[:message_key]
+
+# WechatThirdPartyPlatform.application_class_name = "Application"

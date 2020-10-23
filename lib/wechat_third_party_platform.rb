@@ -25,9 +25,11 @@ module WechatThirdPartyPlatform
 
   TIMEOUT = 5
 
-  class<< self
-    attr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url
+  mattr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url
+  mattr_accessor :application_class_name
+  @@application_class_name = "Application"
 
+  class<< self
     def get_component_access_token
       access_token = Rails.cache.fetch(ACCESS_TOKEN_CACHE_KEY)
 
