@@ -109,6 +109,30 @@ module WechatThirdPartyPlatform
       })
     end
 
+    # 获取代码草稿列表
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code_template/gettemplatedraftlist.html
+    def gettemplatedraftlist
+      http_get("/wxa/gettemplatedraftlist")
+    end
+
+    # 将草稿添加到代码模板库
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code_template/addtotemplate.html
+    def addtotemplate(draft_id:)
+      http_post("/wxa/addtotemplate", body: { draft_id: draft_id })
+    end
+
+    # 获取代码模板列表
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code_template/gettemplatelist.html
+    def gettemplatelist
+      http_get("/wxa/gettemplatelist")
+    end
+
+    # 删除指定代码模板
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code_template/deletetemplate.html
+    def deletetemplate(template_id:)
+      http_post("/wxa/deletetemplate", body: { template_id: template_id })
+    end
+
     [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
         body = (options[:body] || {}).select { |_, v| !v.nil? }
