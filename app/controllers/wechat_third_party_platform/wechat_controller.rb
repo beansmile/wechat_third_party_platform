@@ -15,10 +15,18 @@ module WechatThirdPartyPlatform
     def auth_callback
       if params[:auth_code] && params[:expires_in]
         # 根据授权码获取小程序的授权信息
-        WechatThirdPartyPlatform.api_query_auth(authorization_code: params[:auth_code])
+        resp = WechatThirdPartyPlatform.api_query_auth(authorization_code: params[:auth_code])
+        auth_info = resp["authorization_info"]
+        application = WechatThirdPartyPlatform.application_class_name.constantize.find_or_create_by(appid: auth_info["authorizer_appid"])
+        application.update(
+          access_token: auth_info["authorizer_access_token"],
+          refresh_token: auth_info["authorizer_refresh_token"],
+          func_info: auth_info["func_info"]
+        )
         render json: { status: 200, message: "auth success" }
+      else
+        render json: { status: 400, message: "parameter error" }
       end
-      render json: { status: 400, message: "parameter error" }
     end
 
     def component_auth
