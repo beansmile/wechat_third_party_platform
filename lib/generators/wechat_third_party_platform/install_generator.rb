@@ -1,5 +1,7 @@
 module WechatThirdPartyPlatform
   class InstallGenerator < Rails::Generators::Base
+    include Rails::Generators::Migration
+
     source_root File.expand_path('templates', __dir__)
 
     def install
@@ -21,8 +23,20 @@ module WechatThirdPartyPlatform
       CONFIG
     end
 
+    def copy_migration
+      migration_template "migrations/create_wechat_third_party_platform_templates.rb.erb", "db/migrate/create_wechat_third_party_platform_templates.rb"
+      migration_template "migrations/create_wechat_third_party_platform_submitions.rb.erb", "db/migrate/create_wechat_third_party_platform_submitions.rb"
+      migration_template "migrations/create_wechat_third_party_platform_testers.rb.erb", "db/migrate/create_wechat_third_party_platform_testers.rb"
+    end
+
     def copy_decorators
       template 'wechat_controller.rb', 'app/decorators/controllers/wechat_third_party_platform/wechat_controller_decorator.rb'
+    end
+
+    private
+    def self.next_migration_number(dirname)
+      next_migration_number = current_migration_number(dirname) + 1
+      ActiveRecord::Migration.next_migration_number(next_migration_number)
     end
   end
 end
