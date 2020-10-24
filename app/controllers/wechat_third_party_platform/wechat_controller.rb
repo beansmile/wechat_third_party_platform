@@ -1,14 +1,40 @@
 module WechatThirdPartyPlatform
   class WechatController < ApplicationController
     skip_before_action :verify_authenticity_token
+    before_action :set_app_id_params, only: :authorization_events
 
     LOGGER = ::Logger.new('./log/wechat_third_party_platform_event.log')
 
     def authorization_events
+      LOGGER.debug("request: params: #{params.inspect}, msg_hash: #{msg_hash.inspect}")
+      event_handler = "#{msg_hash["InfoType"]}_handler"
+      send(event_handler) if respond_to?(event_handler)
+
+      render plain: "success"
+    end
+
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorize_event.html
+    # 授权变更通知推送-授权成功
+    def authorized_handler
+      # do nothing
+    end
+
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorize_event.html
+    # 授权变更通知推送-取消授权
+    def unauthorized_handler
+      # do nothing
+    end
+
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorize_event.html
+    # 授权变更通知推送-取消授权
+    def updateauthorized_handler
+      # do nothing
+    end
+
+    def component_verify_ticket_handler
       # msg_hash为{"AppId"=>"wx6049dd9d0df6e593", "CreateTime"=>"1603094188", "InfoType"=>"component_verify_ticket", "ComponentVerifyTicket"=>"ticket@@@Hcp1sWsxoI7cuskY_boQJLDC6RPKc5PR7v7SzeHjwFv2CZAyEJCSOEAptlmRLuFmLMyEcYoMpcVPFr4w5jSn9Q"}
       wtpp_verify_ticket = msg_hash["ComponentVerifyTicket"]
       Rails.cache.write("wtpp_verify_ticket", wtpp_verify_ticket, expires_in: 115.minutes)
-      render plain: "success"
     end
 
     # 默认小程序授权之后redirect url
@@ -102,11 +128,18 @@ module WechatThirdPartyPlatform
     #   <reason>驳回原因</reason>
     # </xml>
     def wxa_nickname_audit_handler
-      # do nothing
+    end
+
+    def current_application
+      @application ||= WechatThirdPartyPlatform.application_class_name.constantize.find_by(authorizer_appid: params[:appid])
     end
 
     def msg_hash
       @msg_hash ||= Hash.from_xml(WechatThirdPartyPlatform::MessageEncryptor.decrypt_message(request.body.read))["xml"]
+    end
+
+    def set_app_id_params
+      params[:appid] = msg_hash["AuthorizerAppid"]
     end
   end
 end

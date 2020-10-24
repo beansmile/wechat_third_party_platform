@@ -56,7 +56,7 @@ module WechatThirdPartyPlatform
     # 预授权码
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/pre_auth_code.html
     def api_create_preauthcode
-      pre_auth_code = Rails.cache.fetch(PRE_AUTH_CODE_CACHE_KEY)
+      pre_auth_code = fetch_pre_auth_code
 
       return pre_auth_code if pre_auth_code
 
@@ -65,10 +65,17 @@ module WechatThirdPartyPlatform
       })
 
       pre_auth_code = resp["pre_auth_code"]
-
-      Rails.cache.write(PRE_AUTH_CODE_CACHE_KEY, pre_auth_code, expires_in: 10.minutes)
+      cache_pre_auth_code(pre_auth_code)
 
       pre_auth_code
+    end
+
+    def cache_pre_auth_code(pre_auth_code)
+      Rails.cache.write(PRE_AUTH_CODE_CACHE_KEY, pre_auth_code, expires_in: 10.minutes)
+    end
+
+    def fetch_pre_auth_code
+      Rails.cache.fetch(PRE_AUTH_CODE_CACHE_KEY)
     end
 
     # 使用授权码获取授权信息
