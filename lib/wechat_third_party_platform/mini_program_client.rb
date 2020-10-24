@@ -11,13 +11,37 @@ module WechatThirdPartyPlatform
     include WechatThirdPartyPlatform::API::Category
     include WechatThirdPartyPlatform::API::Tester
     include WechatThirdPartyPlatform::API::Wxacode
+    include WechatThirdPartyPlatform::API::Auth
 
     base_uri "https://api.weixin.qq.com"
 
-    attr_accessor :access_token
+    attr_accessor :appid, :access_token
 
-    def initialize(access_token)
+    def initialize(appid, access_token)
+      @appid = appid
       @access_token = access_token
+    end
+
+    def decrypt!(session_key:, encrypted_data:, iv:)
+      begin
+        cipher = OpenSSL::Cipher::AES.new 128, :CBC
+        cipher.decrypt
+        cipher.padding = 0
+        cipher.key = Base64.decode64(session_key)
+        cipher.iv  = Base64.decode64(iv)
+        data = cipher.update(Base64.decode64(encrypted_data)) << cipher.final
+        result = JSON.parse data[0...-data.last.ord]
+      rescue StandardError => e
+        WechatThirdPartyPlatform::LOGGER.debug("[UserData] decrypt error: #{e.message}")
+        raise "微信解析数据错误"
+      end
+
+      if result.dig("watermark", "appid") != appid
+        WechatThirdPartyPlatform::LOGGER.debug("[UserData] decrypt error: #{result}")
+        raise "微信解析数据错误, appid不匹配"
+      end
+
+      result
     end
 
     [:get, :post].each do |method|
