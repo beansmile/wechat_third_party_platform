@@ -44,6 +44,15 @@ module WechatThirdPartyPlatform
       result
     end
 
+    # 获取授权方的帐号基本信息
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/api_get_authorizer_info.html
+    def api_get_authorizer_info
+      WechatThirdPartyPlatform.http_post("/cgi-bin/component/api_get_authorizer_info", body: {
+        component_appid: WechatThirdPartyPlatform.component_appid,
+        authorizer_appid: appid
+      })
+    end
+
     [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
         body = (options[:body] || {}).select { |_, v| !v.nil? }

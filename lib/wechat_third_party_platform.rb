@@ -71,15 +71,6 @@ module WechatThirdPartyPlatform
       pre_auth_code
     end
 
-    # 获取授权方的帐号基本信息
-    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/api_get_authorizer_info.html
-    def api_get_authorizer_info(component_appid:)
-      http_post("/cgi-bin/component/api_get_authorizer_info", body: {
-        component_appid: component_appid,
-        authorizer_appid: authorizer_appid
-      })
-    end
-
     # 使用授权码获取授权信息
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorization_info.html
     def api_query_auth(authorization_code:)
