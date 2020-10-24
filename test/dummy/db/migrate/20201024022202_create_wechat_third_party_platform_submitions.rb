@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateWechatThirdPartyPlatformSubmitions < ActiveRecord::Migration[6.0]
   def change
     create_table :wechat_third_party_platform_submitions do |t|

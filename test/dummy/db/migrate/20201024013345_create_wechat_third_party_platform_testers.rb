@@ -5,7 +5,7 @@ class CreateWechatThirdPartyPlatformTesters < ActiveRecord::Migration[6.0]
     create_table :wechat_third_party_platform_testers do |t|
       t.string :wechat_id
       t.string :userstr
-      t.integer :application
+      t.integer :application_id
 
       t.timestamps
     end

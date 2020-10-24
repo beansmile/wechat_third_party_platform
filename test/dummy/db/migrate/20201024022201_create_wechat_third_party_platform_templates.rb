@@ -6,7 +6,7 @@ class CreateWechatThirdPartyPlatformTemplates < ActiveRecord::Migration[6.0]
       t.string :template_id
       t.string :user_version
       t.string :user_desc
-      t.string :draft_id
+      t.integer :draft_id
 
       t.timestamps
     end

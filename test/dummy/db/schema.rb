@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_23_035158) do
+ActiveRecord::Schema.define(version: 2020_10_24_022202) do
 
   create_table "wechat_third_party_platform_submitions", force: :cascade do |t|
     t.string "template_id"
@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(version: 2020_10_23_035158) do
     t.string "template_id"
     t.string "user_version"
     t.string "user_desc"
-    t.string "draft_id"
+    t.integer "draft_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -38,10 +38,10 @@ ActiveRecord::Schema.define(version: 2020_10_23_035158) do
   create_table "wechat_third_party_platform_testers", force: :cascade do |t|
     t.string "wechat_id"
     t.string "userstr"
-    t.integer "application"
+    t.integer "application_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index "\"application_id\"", name: "index_wechat_third_party_platform_testers_on_application_id"
+    t.index ["application_id"], name: "index_wechat_third_party_platform_testers_on_application_id"
   end
 
 end
