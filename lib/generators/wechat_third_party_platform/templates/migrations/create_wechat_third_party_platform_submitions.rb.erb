@@ -10,6 +10,7 @@ class CreateWechatThirdPartyPlatformSubmitions < ActiveRecord::Migration[<%= Act
       t.string :user_desc
       t.integer :state, default: 0
       t.integer :application_id
+      t.string :auditid
 
       t.timestamps
     end

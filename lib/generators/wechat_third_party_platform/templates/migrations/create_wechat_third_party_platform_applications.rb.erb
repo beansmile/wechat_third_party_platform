@@ -9,6 +9,7 @@ class CreateWechatThirdPartyPlatformApplications < ActiveRecord::Migration[<%= A
       t.string :principal_name
       t.string :access_token
       t.string :refresh_token
+      t.references :audit_submition, foreign_key: { to_table: "wechat_third_party_platform_submitions" }, index: { name: "index_wtpp_applications_on_audit_submition_id" }
 
       t.timestamps
     end
