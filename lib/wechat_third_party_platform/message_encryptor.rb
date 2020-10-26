@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WechatThirdPartyPlatform
   class MessageEncryptor
 
@@ -9,7 +11,7 @@ module WechatThirdPartyPlatform
 
       def decrypt_content(msg_encrypt)
         msg_decrypt = aes_decrypt(msg_encrypt)
-        msg_decrypt[20..msg_decrypt.rindex('>')]
+        msg_decrypt[20..msg_decrypt.rindex(">")]
       end
 
       def encrypt_message(original_xml, app_id)
@@ -44,21 +46,21 @@ module WechatThirdPartyPlatform
 
         def aes_decrypt(msg)
           aes_key = Base64.decode64 WechatThirdPartyPlatform.message_key + "="
-          cipher = OpenSSL::Cipher.new('AES-256-CBC')
-            .tap{|c| c.decrypt }
-            .tap{|c| c.padding = 0 }
-            .tap{|c| c.key = aes_key }
-            .tap{|c| c.iv = aes_key[0, 16] }
+          cipher = OpenSSL::Cipher.new("AES-256-CBC")
+            .tap { |c| c.decrypt }
+            .tap { |c| c.padding = 0 }
+            .tap { |c| c.key = aes_key }
+            .tap { |c| c.iv = aes_key[0, 16] }
           cipher.update(Base64.decode64(msg.strip)).strip
         end
 
         def aes_encrypt(msg)
-          aes_key = Base64.decode64(WechatThirdPartyPlatform.message_key + '=')
-          en_cipher = OpenSSL::Cipher.new('AES-256-CBC')
-            .tap{|c| c.encrypt }
-            .tap{|c| c.padding = 0 }
-            .tap{|c| c.key = aes_key }
-            .tap{|c| c.iv = aes_key[0, 16] }
+          aes_key = Base64.decode64(WechatThirdPartyPlatform.message_key + "=")
+          en_cipher = OpenSSL::Cipher.new("AES-256-CBC")
+            .tap { |c| c.encrypt }
+            .tap { |c| c.padding = 0 }
+            .tap { |c| c.key = aes_key }
+            .tap { |c| c.iv = aes_key[0, 16] }
           Base64.encode64("#{en_cipher.update(msg)}#{en_cipher.final}")
         end
       end

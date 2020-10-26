@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WechatThirdPartyPlatform::API
   module Auth
     # https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html

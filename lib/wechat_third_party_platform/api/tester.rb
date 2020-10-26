@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WechatThirdPartyPlatform::API
   module Tester
 
@@ -10,7 +12,7 @@ module WechatThirdPartyPlatform::API
     # 获取体验者列表
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/memberauth.html
     def memberauth
-      http_post("/wxa/memberauth", body: { action: 'get_experiencer' })
+      http_post("/wxa/memberauth", body: { action: "get_experiencer" })
     end
 
     # 解除绑定体验者

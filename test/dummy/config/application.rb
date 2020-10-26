@@ -1,6 +1,8 @@
-require_relative 'boot'
+# frozen_string_literal: true
 
-require 'rails/all'
+require_relative "boot"
+
+require "rails/all"
 
 Bundler.require(*Rails.groups)
 require "wechat_third_party_platform"
@@ -22,4 +24,3 @@ module Dummy
     # the framework and any gems in your application.
   end
 end
-

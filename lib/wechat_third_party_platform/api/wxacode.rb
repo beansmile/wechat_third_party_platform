@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WechatThirdPartyPlatform::API
   module Wxacode
     # 获取无数量限制小程序码

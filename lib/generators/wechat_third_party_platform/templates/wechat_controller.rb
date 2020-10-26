@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 WechatThirdPartyPlatform::WechatController.class_eval do
   # 这里放需要重写的推送事件
   # 如：

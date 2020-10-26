@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WechatThirdPartyPlatform::API
   module UploadMedia
     # 上传临时图片素材

@@ -1,4 +1,6 @@
-source 'https://rubygems.org'
+# frozen_string_literal: true
+
+source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Declare your gem's dependencies in wechat_third_party_platform.gemspec.
@@ -12,5 +14,5 @@ gemspec
 # your gem to rubygems.org.
 
 # To use a debugger
-gem 'byebug', group: [:development, :test]
-gem 'dotenv-rails', groups: [:development, :test]
+gem "byebug", group: [:development, :test]
+gem "dotenv-rails", groups: [:development, :test]

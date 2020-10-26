@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 host = Rails.application.credentials.dig(Rails.env.to_sym, :host)
 config = Rails.application.credentials.dig(Rails.env.to_sym, :wechat_third_party_platform) || {}
 

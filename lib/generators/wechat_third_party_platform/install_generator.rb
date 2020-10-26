@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 module WechatThirdPartyPlatform
   class InstallGenerator < Rails::Generators::Base
     include Rails::Generators::Migration
 
-    source_root File.expand_path('templates', __dir__)
+    source_root File.expand_path("templates", __dir__)
 
     def install
       route 'mount WechatThirdPartyPlatform::Engine => "/wtpp"'
     end
 
     def copy_initializer
-      template 'install_wechat_third_party_platform.rb', 'config/initializers/wechat_third_party_platform.rb'
+      template "install_wechat_third_party_platform.rb", "config/initializers/wechat_third_party_platform.rb"
     end
 
     def configure_application
@@ -29,7 +31,7 @@ module WechatThirdPartyPlatform
     end
 
     def copy_decorators
-      template 'wechat_controller.rb', 'app/decorators/controllers/wechat_third_party_platform/wechat_controller_decorator.rb'
+      template "wechat_controller.rb", "app/decorators/controllers/wechat_third_party_platform/wechat_controller_decorator.rb"
     end
 
     private
@@ -39,4 +41,3 @@ module WechatThirdPartyPlatform
     end
   end
 end
-

@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module WechatThirdPartyPlatform
   class WechatController < ApplicationController
     skip_before_action :verify_authenticity_token
     before_action :set_app_id_params, only: :authorization_events
 
-    LOGGER = ::Logger.new('./log/wechat_third_party_platform_event.log')
+    LOGGER = ::Logger.new("./log/wechat_third_party_platform_event.log")
 
     def authorization_events
       LOGGER.debug("request: params: #{params.inspect}, msg_hash: #{msg_hash.inspect}")

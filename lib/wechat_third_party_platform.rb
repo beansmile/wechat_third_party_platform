@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "wechat_third_party_platform/engine"
 require "wechat_third_party_platform/message_encryptor"
 require "wechat_third_party_platform/api"
