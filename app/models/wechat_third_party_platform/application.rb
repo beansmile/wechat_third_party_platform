@@ -23,6 +23,8 @@ module WechatThirdPartyPlatform
       other: 4
     }, _suffix: true
 
+    has_many :testers, dependent: :destroy
+
     def client
       @client ||= WechatThirdPartyPlatform::MiniProgramClient.new(appid, access_token)
     end

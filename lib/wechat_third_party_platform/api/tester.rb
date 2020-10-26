@@ -17,8 +17,11 @@ module WechatThirdPartyPlatform::API
 
     # 解除绑定体验者
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/unbind_tester.html
-    def unbind_tester(userstr:)
-      http_post("/wxa/release", body: { userstr: userstr })
+    def unbind_tester(wechatid:, userstr:)
+      http_post("/wxa/unbind_tester", body: {
+        wechatid: wechatid,
+        userstr: userstr
+      })
     end
   end
 end
