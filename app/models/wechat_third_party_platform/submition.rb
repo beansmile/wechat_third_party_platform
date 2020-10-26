@@ -2,6 +2,6 @@
 
 module WechatThirdPartyPlatform
   class Submition < ApplicationRecord
-    belongs_to :application, class_name: WechatThirdPartyPlatform.application_class_name
+    belongs_to :application, class_name: "WechatThirdPartyPlatform::Application"
   end
 end

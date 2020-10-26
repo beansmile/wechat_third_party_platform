@@ -26,6 +26,7 @@ module WechatThirdPartyPlatform
     end
 
     def copy_migration
+      migration_template "migrations/create_wechat_third_party_platform_applications.rb.erb", "db/migrate/create_wechat_third_party_platform_applications.rb"
       migration_template "migrations/create_wechat_third_party_platform_submitions.rb.erb", "db/migrate/create_wechat_third_party_platform_submitions.rb"
       migration_template "migrations/create_wechat_third_party_platform_testers.rb.erb", "db/migrate/create_wechat_third_party_platform_testers.rb"
     end

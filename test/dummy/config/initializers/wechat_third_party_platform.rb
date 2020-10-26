@@ -8,5 +8,3 @@ WechatThirdPartyPlatform.component_appid = config[:component_appid]
 WechatThirdPartyPlatform.component_appsecret = config[:component_appsecret]
 WechatThirdPartyPlatform.message_token = config[:message_token]
 WechatThirdPartyPlatform.message_key = config[:message_key]
-
-# WechatThirdPartyPlatform.application_class_name = "Application"

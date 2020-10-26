@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -12,7 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_24_022202) do
+ActiveRecord::Schema.define(version: 2020_10_26_063631) do
+
+  create_table "wechat_third_party_platform_applications", force: :cascade do |t|
+    t.string "appid"
+    t.integer "account_type"
+    t.integer "principal_type"
+    t.string "principal_name"
+    t.string "access_token"
+    t.string "refresh_token"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["appid"], name: "index_wechat_third_party_platform_applications_on_appid", unique: true
+  end
 
   create_table "wechat_third_party_platform_submitions", force: :cascade do |t|
     t.string "template_id"

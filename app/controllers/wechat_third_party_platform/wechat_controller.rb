@@ -45,7 +45,7 @@ module WechatThirdPartyPlatform
         # 根据授权码获取小程序的授权信息
         resp = WechatThirdPartyPlatform.api_query_auth(authorization_code: params[:auth_code])
         auth_info = resp["authorization_info"]
-        application = WechatThirdPartyPlatform.application_class_name.constantize.find_or_create_by(appid: auth_info["authorizer_appid"])
+        application = WechatThirdPartyPlatform::Application.find_or_create_by(appid: auth_info["authorizer_appid"])
         application.update(
           access_token: auth_info["authorizer_access_token"],
           refresh_token: auth_info["authorizer_refresh_token"],
@@ -133,7 +133,7 @@ module WechatThirdPartyPlatform
     end
 
     def current_application
-      @application ||= WechatThirdPartyPlatform.application_class_name.constantize.find_by(authorizer_appid: params[:appid])
+      @application ||= WechatThirdPartyPlatform::Application.find_by(appid: params[:appid])
     end
 
     def msg_hash
