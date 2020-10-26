@@ -30,6 +30,10 @@ module WechatThirdPartyPlatform
   mattr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url
 
   class<< self
+    def component_auth_url
+      "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=#{component_appid}&pre_auth_code=#{api_create_preauthcode}&redirect_uri=#{auth_redirect_url}&auth_type=2"
+    end
+
     def get_component_access_token
       access_token = Rails.cache.fetch(ACCESS_TOKEN_CACHE_KEY)
 

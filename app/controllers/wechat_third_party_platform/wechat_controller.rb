@@ -58,7 +58,7 @@ module WechatThirdPartyPlatform
     end
 
     def component_auth
-      @auth_url = "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=#{WechatThirdPartyPlatform.component_appid}&pre_auth_code=#{WechatThirdPartyPlatform.api_create_preauthcode}&redirect_uri=#{WechatThirdPartyPlatform.auth_redirect_url}&auth_type=2"
+      @auth_url = WechatThirdPartyPlatform.component_auth_url
     end
 
     def messages
