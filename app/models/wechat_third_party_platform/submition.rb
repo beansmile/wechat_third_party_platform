@@ -17,5 +17,14 @@ module WechatThirdPartyPlatform
       # 审核延后
       delay: 4
     }
+
+    validates :template_id, presence: true
+    validates :user_version, presence: true
+    validates :user_desc, presence: true
+    validates :auditid, presence: true
+
+    def reason
+      @reason ||= audit_result["Reason"]
+    end
   end
 end

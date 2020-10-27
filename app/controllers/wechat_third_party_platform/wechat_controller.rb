@@ -65,7 +65,7 @@ module WechatThirdPartyPlatform
       LOGGER.debug("request: params: #{params.inspect}, msg_hash: #{msg_hash.inspect}")
 
       event_handler = "#{msg_hash["Event"]}_handler"
-      send(event_handler) if respond_to?(event_handler)
+      send(event_handler) if respond_to?(event_handler, true)
 
       render plain: "success"
     end
@@ -82,7 +82,10 @@ module WechatThirdPartyPlatform
     #   <SuccTime>1488856741</SuccTime>
     # </xml>
     def weapp_audit_success_handler
-      # do nothing
+      return unless audit_submition = current_application.audit_submition
+      return unless audit_submition.pending? || audit_submition.delay?
+
+      audit_submition.update(audit_result: msg_hash, state: :success)
     end
 
     # 代码审核结果推送 - 审核不通过
@@ -98,7 +101,10 @@ module WechatThirdPartyPlatform
     #   <ScreenShot>xxx|yyy|zzz</ScreenShot>
     # </xml>
     def weapp_audit_fail_handler
-      # do nothing
+      return unless audit_submition = current_application.audit_submition
+      return unless audit_submition.pending? || audit_submition.delay?
+
+      audit_submition.update(audit_result: msg_hash, state: :fail)
     end
 
     # 代码审核结果推送 - 审核延后
@@ -114,7 +120,10 @@ module WechatThirdPartyPlatform
     #   <DelayTime>1488856591</DelayTime>
     # </xml>
     def weapp_audit_delay_handler
-      # do nothing
+      return unless audit_submition = current_application.audit_submition
+      return unless audit_submition.pending? || audit_submition.delay?
+
+      audit_submition.update(audit_result: msg_hash, state: :delay)
     end
 
     # 名称审核结果事件推送
@@ -133,7 +142,7 @@ module WechatThirdPartyPlatform
     end
 
     def current_application
-      @application ||= WechatThirdPartyPlatform::Application.find_by(appid: params[:appid])
+      @current_application ||= WechatThirdPartyPlatform::Application.find_by(appid: params[:appid])
     end
 
     def msg_hash

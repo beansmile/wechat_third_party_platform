@@ -71,7 +71,7 @@ module WechatThirdPartyPlatform
 
       errors.add(:base, response["errmsg"]) and return false unless response["errcode"] == 0
 
-      audit_submition.update(auditid: response["auditid"])
+      audit_submition.update(auditid: response["auditid"], audit_result: {})
       audit_submition.pending!
 
       true
