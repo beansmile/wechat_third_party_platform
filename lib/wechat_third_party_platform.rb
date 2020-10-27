@@ -97,7 +97,7 @@ module WechatThirdPartyPlatform
 
     # 查询创建任务状态
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/Fast_Registration_Interface_document.html
-    def search_fastregisterweapp
+    def search_fastregisterweapp(name:, legal_persona_wechat:, legal_persona_name:)
       http_post("/cgi-bin/component/fastregisterweapp?action=search", body: {
         name: name,
         legal_persona_wechat: legal_persona_wechat,

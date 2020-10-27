@@ -160,6 +160,29 @@ module WechatThirdPartyPlatform
     #     </info>
     # </xml>
     def notify_third_fasteregister_handler
+      info = msg_hash["info"]
+      register = WechatThirdPartyPlatform::Register.where({
+          name: info["name"],
+          code: info["code"],
+          legal_persona_wechat: info["legal_persona_wechat"],
+          legal_persona_name: info["legal_persona_name"]
+        }).last
+      if register
+        if msg_hash["status"] == 0
+          register.update(state: "success", audit_result: msg_hash)
+          resp = WechatThirdPartyPlatform.api_query_auth(authorization_code: msg_hash["auth_code"])
+          auth_info = resp["authorization_info"]
+          application = WechatThirdPartyPlatform::Application.create({
+            appid: auth_info["authorizer_appid"],
+            access_token: auth_info["authorizer_access_token"],
+            refresh_token: auth_info["authorizer_refresh_token"],
+            func_info: auth_info["func_info"],
+            register_id: register.id
+          })
+        else
+          register.update(state: "failed", audit_result: msg_hash)
+        end
+      end
     end
 
     def current_application

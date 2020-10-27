@@ -9,12 +9,11 @@ class CreateWechatThirdPartyPlatformRegisters < ActiveRecord::Migration[<%= Acti
       t.string :legal_persona_wechat
       t.string :legal_persona_name
       t.string :component_phone
-      t.json :audit_result, default: {}
+      t.jsonb :audit_result, default: {}
       t.integer :state, default: 0
-      t.integer :creator_id
+      t.belongs_to :creator
 
       t.timestamps
     end
-    add_index :wechat_third_party_platform_registers, :creator_id
   end
 end
