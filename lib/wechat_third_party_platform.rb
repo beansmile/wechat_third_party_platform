@@ -27,7 +27,7 @@ module WechatThirdPartyPlatform
 
   TIMEOUT = 5
 
-  mattr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url
+  mattr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url, :component_phone
 
   class<< self
     def component_auth_url
@@ -80,6 +80,29 @@ module WechatThirdPartyPlatform
 
     def fetch_pre_auth_code
       Rails.cache.fetch(PRE_AUTH_CODE_CACHE_KEY)
+    end
+
+    # 创建小程序接口
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/Fast_Registration_Interface_document.html
+    def create_fastregisterweapp(name:, code_type:, code:, legal_persona_wechat:, legal_persona_name:, component_phone:)
+      http_post("/cgi-bin/component/fastregisterweapp?action=create", body: {
+        name: name,
+        code: code,
+        code_type: code_type,
+        legal_persona_wechat: legal_persona_wechat,
+        legal_persona_name: legal_persona_name,
+        component_phone: component_phone
+      })
+    end
+
+    # 查询创建任务状态
+    # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/Fast_Registration_Interface_document.html
+    def search_fastregisterweapp
+      http_post("/cgi-bin/component/fastregisterweapp?action=search", body: {
+        name: name,
+        legal_persona_wechat: legal_persona_wechat,
+        legal_persona_name: legal_persona_name
+      })
     end
 
     # 使用授权码获取授权信息
@@ -144,7 +167,8 @@ module WechatThirdPartyPlatform
         })
 
         if need_access_token
-          path = "#{path}?component_access_token=#{get_component_access_token}"
+          connector = path.include?("?") ? "&" : "?"
+          path = "#{path}#{connector}component_access_token=#{get_component_access_token}"
         end
 
         uuid = SecureRandom.uuid

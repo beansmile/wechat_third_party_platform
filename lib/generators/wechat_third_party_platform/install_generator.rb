@@ -29,6 +29,8 @@ module WechatThirdPartyPlatform
       migration_template "migrations/create_wechat_third_party_platform_applications.rb.erb", "db/migrate/create_wechat_third_party_platform_applications.rb"
       migration_template "migrations/create_wechat_third_party_platform_submitions.rb.erb", "db/migrate/create_wechat_third_party_platform_submitions.rb"
       migration_template "migrations/create_wechat_third_party_platform_testers.rb.erb", "db/migrate/create_wechat_third_party_platform_testers.rb"
+      migration_template "migrations/create_wechat_third_party_platform_registers.rb.erb", "db/migrate/create_wechat_third_party_platform_registers.rb"
+      migration_template "migrations/add_source_to_wechat_third_party_platform_applications.rb.erb", "db/migrate/add_source_to_wechat_third_party_platform_applications.rb"
     end
 
     def copy_decorators

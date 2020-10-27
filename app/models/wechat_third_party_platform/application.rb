@@ -2,6 +2,7 @@
 
 module WechatThirdPartyPlatform
   class Application < ApplicationRecord
+    enum source: { wechat: 0, platform: 1 }
     enum account_type: {
       # 订阅号暂不处理
       # 公众号暂不处理
@@ -24,6 +25,8 @@ module WechatThirdPartyPlatform
     }, _suffix: true
 
     belongs_to :audit_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
+    belongs_to :register, class_name: "WechatThirdPartyPlatform::Register", optional: true
+
     has_many :testers, dependent: :destroy
 
     def client

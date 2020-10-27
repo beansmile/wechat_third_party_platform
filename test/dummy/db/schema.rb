@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_26_063631) do
+ActiveRecord::Schema.define(version: 2020_10_26_095037) do
 
   create_table "wechat_third_party_platform_applications", force: :cascade do |t|
     t.string "appid"
@@ -21,7 +21,23 @@ ActiveRecord::Schema.define(version: 2020_10_26_063631) do
     t.string "refresh_token"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "source", default: 0
+    t.integer "register_id"
     t.index ["appid"], name: "index_wechat_third_party_platform_applications_on_appid", unique: true
+    t.index ["register_id"], name: "index_wechat_third_party_platform_applications_on_register_id"
+  end
+
+  create_table "wechat_third_party_platform_registers", force: :cascade do |t|
+    t.string "name"
+    t.string "code"
+    t.string "code_type"
+    t.string "legal_persona_wechat"
+    t.string "legal_persona_name"
+    t.string "component_phone"
+    t.integer "creator_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["creator_id"], name: "index_wechat_third_party_platform_registers_on_creator_id"
   end
 
   create_table "wechat_third_party_platform_submitions", force: :cascade do |t|

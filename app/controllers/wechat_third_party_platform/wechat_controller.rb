@@ -141,6 +141,27 @@ module WechatThirdPartyPlatform
     def wxa_nickname_audit_handler
     end
 
+    # 快速注册小程序审核事件推送
+    # <xml>
+    #     <AppId><![CDATA[第三方平台appid]]></AppId>
+    #     <CreateTime>1535442403</CreateTime>
+    #     <InfoType><![CDATA[notify_third_fasteregister]]></InfoType>
+    #     <appid>创建小程序appid<appid>
+    #     <status>0</status>
+    #     <auth_code>xxxxx第三方授权码</auth_code>
+    #     <msg>OK</msg>
+    #     <info>
+    #     <name><![CDATA[企业名称]]></name>
+    #     <code><![CDATA[企业代码]]></code>
+    #     <code_type>1</code_type>
+    #     <legal_persona_wechat><![CDATA[法人微信号]]></legal_persona_wechat>
+    #     <legal_persona_name><![CDATA[法人姓名]]></legal_persona_name>
+    #     <component_phone><![CDATA[第三方联系电话]]></component_phone>
+    #     </info>
+    # </xml>
+    def notify_third_fasteregister_handler
+    end
+
     def current_application
       @current_application ||= WechatThirdPartyPlatform::Application.find_by(appid: params[:appid])
     end

@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  code: MyString
+  code_type: MyString
+  legal_persona_wechat: MyString
+  legal_persona_name: MyString
+  component_phone: MyString
+
+two:
+  name: MyString
+  code: MyString
+  code_type: MyString
+  legal_persona_wechat: MyString
+  legal_persona_name: MyString
+  component_phone: MyString
