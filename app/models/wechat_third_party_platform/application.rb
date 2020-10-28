@@ -2,6 +2,8 @@
 
 module WechatThirdPartyPlatform
   class Application < ApplicationRecord
+    require "open-uri"
+
     include AccessTokenConcern
 
     enum source: { wechat: 0, platform: 1 }
@@ -34,7 +36,12 @@ module WechatThirdPartyPlatform
     has_many :testers, dependent: :destroy
     has_one :project_application, class_name: WechatThirdPartyPlatform.project_application_class_name, foreign_key: :wechat_application_id, dependent: :nullify
 
+    has_one_attached :head_img
+    has_one_attached :qrcode_url
+
     validates :appid, uniqueness: true
+
+    after_commit :enqueue_set_base_data, on: :create
 
     def client
       @client ||= WechatThirdPartyPlatform::MiniProgramClient.new(appid, access_token)
@@ -84,6 +91,32 @@ module WechatThirdPartyPlatform
       errors.add(:base, response["errmsg"]) and return false unless response["errcode"] == 0
 
       update(online_submition: audit_submition, audit_submition: nil)
+    end
+
+    def enqueue_set_base_data
+      WechatThirdPartyPlatform::ApplicationSetBaseDataJob.perform_later(self)
+    end
+
+    def set_base_data
+      info = client.api_get_authorizer_info
+      if authorizer_info = info["authorizer_info"]
+        head_img_file = open(authorizer_info["head_img"])
+        qrcode_url_file = open(authorizer_info["qrcode_url"])
+        head_img_blob = ActiveStorage::Blob.create_after_upload!(io: head_img_file, filename: SecureRandom.uuid, content_type: head_img_file.meta["content-type"])
+        qrcode_url_blob = ActiveStorage::Blob.create_after_upload!(io: qrcode_url_file, filename: SecureRandom.uuid, content_type: qrcode_url_file.meta["content-type"])
+
+        update(
+          nick_name: authorizer_info["nick_name"],
+          user_name: authorizer_info["user_name"],
+          principal_name: authorizer_info["principal_name"],
+          mini_program_info: authorizer_info["MiniProgramInfo"],
+          head_img: head_img_blob.signed_id,
+          qrcode_url: qrcode_url_blob.signed_id,
+          refresh_token: info.dig("authorization_info", "authorizer_refresh_token") || refresh_token
+        )
+
+        project_application&.update(name: authorizer_info["nick_name"])
+      end
     end
   end
 end

@@ -56,7 +56,7 @@ module WechatThirdPartyPlatform
           render json: { status: 400, message: "授权失败，当前小程序已授权给其他应用" } and return if wechat_application.project_application && wechat_application.project_application.id != project_application.id
         end
 
-        project_application.update(wechat_application: wechat_application)
+        project_application.update(wechat_application: wechat_application, name: (wechat_application.nick_name || project_application.name))
         wechat_application.update(
           access_token: auth_info["authorizer_access_token"],
           refresh_token: auth_info["authorizer_refresh_token"],

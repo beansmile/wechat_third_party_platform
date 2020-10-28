@@ -40,9 +40,10 @@ module WechatThirdPartyPlatform
     end
 
     # 只有正式环境可以刷新access_token, 未部署正式前只有测试环境可以刷新
+    # 没授权成功（即没绑定成功）的小程序不可刷新access_token
     def can_refresh_access_token?
       ENV_FALLBACK_ARRAY.each do |env|
-        return !!(Rails.env.send("#{env}?") && refresh_token) if Rails.application.credentials.dig(env, host_key)
+        return !!(Rails.env.send("#{env}?") && refresh_token && project_application.present?) if Rails.application.credentials.dig(env, host_key)
       end
     end
 
