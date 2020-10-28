@@ -2,7 +2,10 @@
 
 module WechatThirdPartyPlatform
   class Application < ApplicationRecord
+    include AccessTokenConcern
+
     enum source: { wechat: 0, platform: 1 }
+
     enum account_type: {
       # 订阅号暂不处理
       # 公众号暂不处理
@@ -29,6 +32,9 @@ module WechatThirdPartyPlatform
     belongs_to :online_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
 
     has_many :testers, dependent: :destroy
+    has_one :project_application, class_name: WechatThirdPartyPlatform.project_application_class_name, foreign_key: :wechat_application_id, dependent: :nullify
+
+    validates :appid, uniqueness: true
 
     def client
       @client ||= WechatThirdPartyPlatform::MiniProgramClient.new(appid, access_token)

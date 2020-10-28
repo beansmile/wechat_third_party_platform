@@ -27,11 +27,14 @@ module WechatThirdPartyPlatform
 
   TIMEOUT = 5
 
+
   mattr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url, :component_phone
+  mattr_accessor :project_application_class_name
+  @@project_application_class_name ||= "::Application"
 
   class<< self
-    def component_auth_url
-      "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=#{component_appid}&pre_auth_code=#{api_create_preauthcode}&redirect_uri=#{auth_redirect_url}&auth_type=2"
+    def component_auth_url(application_id:)
+      "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=#{component_appid}&pre_auth_code=#{api_create_preauthcode}&redirect_uri=#{auth_redirect_url}/#{application_id}&auth_type=2"
     end
 
     def get_component_access_token
