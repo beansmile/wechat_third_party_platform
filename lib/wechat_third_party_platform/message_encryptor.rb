@@ -14,10 +14,10 @@ module WechatThirdPartyPlatform
         msg_decrypt[20..msg_decrypt.rindex(">")]
       end
 
-      def encrypt_message(original_xml, app_id)
+      def encrypt_message(original_xml)
         timestamp = Time.now.to_i.to_s
         nonce = SecureRandom.hex(5)
-        msg_encrypt = encrypt_content(original_xml, app_id)
+        msg_encrypt = encrypt_content(original_xml, WechatThirdPartyPlatform.component_appid)
         msg_signature = Digest::SHA1.hexdigest([WechatThirdPartyPlatform.message_token, timestamp, nonce, msg_encrypt].sort.join)
         <<~END_TEXT_AREA
           <xml>
@@ -29,9 +29,9 @@ module WechatThirdPartyPlatform
         END_TEXT_AREA
       end
 
-      def encrypt_content(msg_decrypt, app_id)
+      def encrypt_content(msg_decrypt)
         msg = msg_decrypt.force_encoding("ascii-8bit")
-        msg = kcs7_encoder "#{SecureRandom.hex(8)}#{[msg.size].pack('N')}#{msg}#{app_id}"
+        msg = kcs7_encoder "#{SecureRandom.hex(8)}#{[msg.size].pack('N')}#{msg}#{WechatThirdPartyPlatform.component_appid}"
         aes_encrypt(msg)
       end
 

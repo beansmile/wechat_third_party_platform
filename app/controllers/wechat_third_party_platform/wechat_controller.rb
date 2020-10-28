@@ -2,8 +2,10 @@
 
 module WechatThirdPartyPlatform
   class WechatController < ApplicationController
+    InvalidMessageSignatureError = Class.new StandardError
+
     skip_before_action :verify_authenticity_token
-    before_action :set_app_id_params, only: :authorization_events
+    before_action :verify_message!, :set_app_id_params, only: :authorization_events
 
     LOGGER = ::Logger.new("./log/wechat_third_party_platform_event.log")
 
@@ -198,12 +200,21 @@ module WechatThirdPartyPlatform
       @current_application ||= WechatThirdPartyPlatform::Application.find_by(appid: params[:appid])
     end
 
+    def original_xml
+      @original_xml ||= request.body.read
+    end
+
     def msg_hash
-      @msg_hash ||= Hash.from_xml(WechatThirdPartyPlatform::MessageEncryptor.decrypt_message(request.body.read))["xml"]
+      @msg_hash ||= Hash.from_xml(WechatThirdPartyPlatform::MessageEncryptor.decrypt_message(original_xml))["xml"]
     end
 
     def set_app_id_params
       params[:appid] = msg_hash["AuthorizerAppid"]
+    end
+
+    def verify_message!
+      msg_encrypt = Hash.from_xml(original_xml)["xml"]["Encrypt"]
+      raise InvalidMessageSignatureError unless Digest::SHA1.hexdigest([WechatThirdPartyPlatform.message_token, params[:timestamp], params[:nonce], msg_encrypt].sort.join).eql?(params[:msg_signature])
     end
   end
 end
