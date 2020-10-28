@@ -26,6 +26,7 @@ module WechatThirdPartyPlatform
 
     belongs_to :audit_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
     belongs_to :register, class_name: "WechatThirdPartyPlatform::Register", optional: true
+    belongs_to :online_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
 
     has_many :testers, dependent: :destroy
 
@@ -61,23 +62,22 @@ module WechatThirdPartyPlatform
       errors.add(:base, "已有正在审核的代码") and return false if audit_submition.pending? || audit_submition.delay?
 
       # TODO 后期需要支持item_list，preview_info，version_desc等参数
-      # TODO 小程序尚未完善暂时统一返回成功
-      response = if Rails.env.production?
-                   client.submit_audit
-                 else
-                   {
-                     "errcode" => 0,
-                     "errmsg" => "ok",
-                     "auditid" => Time.current.to_i
-                   }
-                 end
+      response = client.submit_audit
 
       errors.add(:base, response["errmsg"]) and return false unless response["errcode"] == 0
 
-      audit_submition.update(auditid: response["auditid"], audit_result: {})
-      audit_submition.pending!
+      audit_submition.update(auditid: response["auditid"], audit_result: {}, state: :pending)
+    end
 
-      true
+    def release
+      errors.add(:base, "请先上传代码") and return false unless audit_submition
+      errors.add(:base, "代码尚未通过审核") and return false unless audit_submition.success?
+
+      response = client.release
+
+      errors.add(:base, response["errmsg"]) and return false unless response["errcode"] == 0
+
+      update(online_submition: audit_submition, audit_submition: nil)
     end
   end
 end
