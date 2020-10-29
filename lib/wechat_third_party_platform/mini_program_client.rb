@@ -12,6 +12,7 @@ module WechatThirdPartyPlatform
     include WechatThirdPartyPlatform::API::Tester
     include WechatThirdPartyPlatform::API::Wxacode
     include WechatThirdPartyPlatform::API::Auth
+    include WechatThirdPartyPlatform::API::DataAnalysis
 
     base_uri "https://api.weixin.qq.com"
 
