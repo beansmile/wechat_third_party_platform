@@ -86,27 +86,43 @@ module WechatThirdPartyPlatform
       save
     end
 
-    def submit_audit
-      errors.add(:base, "请先上传代码") and return false unless audit_submition
-      errors.add(:base, "已有正在审核的代码") and return false if audit_submition.pending? || audit_submition.delay?
+    def submit_audit(auto_release: false)
+      submit_audit!(auto_release: auto_release)
+    rescue RuntimeError => e
+      errors.add(:base, e.message)
+
+      false
+    end
+
+    def submit_audit!(auto_release: false)
+      raise "请先上传代码" unless audit_submition
+      raise "已有正在审核的代码" if audit_submition.pending? || audit_submition.delay?
 
       # TODO 后期需要支持item_list，preview_info，version_desc等参数
       response = client.submit_audit
 
-      errors.add(:base, response["errmsg"]) and return false unless response["errcode"] == 0
+      raise response["errmsg"] unless response["errcode"] == 0
 
-      audit_submition.update(auditid: response["auditid"], audit_result: {}, state: :pending)
+      audit_submition.update!(auditid: response["auditid"], audit_result: {}, state: :pending, auto_release: auto_release)
     end
 
     def release
-      errors.add(:base, "请先上传代码") and return false unless audit_submition
-      errors.add(:base, "代码尚未通过审核") and return false unless audit_submition.success?
+      release!
+    rescue RuntimeError => e
+      errors.add(:base, e.message)
+
+      false
+    end
+
+    def release!
+      raise "请先上传代码" unless audit_submition
+      raise "代码尚未通过审核" unless audit_submition.success?
 
       response = client.release
 
-      errors.add(:base, response["errmsg"]) and return false unless response["errcode"] == 0
+      raise response["errmsg"] unless response["errcode"] == 0
 
-      update(online_submition: audit_submition, audit_submition: nil)
+      update!(online_submition: audit_submition, audit_submition: nil)
     end
 
     def enqueue_set_base_data
@@ -148,6 +164,13 @@ module WechatThirdPartyPlatform
         name_changed_status: "name_rejected",
         name_rejected_reason: reason
       )
+    end
+
+    def handle_weapp_audit_success(msg_hash:)
+      return unless audit_submition.pending? || audit_submition.delay?
+
+      audit_submition.update(audit_result: msg_hash, state: :success)
+      ReleaseJob.perform_later(self) if audit_submition.auto_release?
     end
 
     private
