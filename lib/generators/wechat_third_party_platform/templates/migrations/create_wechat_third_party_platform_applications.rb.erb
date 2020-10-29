@@ -14,6 +14,9 @@ class CreateWechatThirdPartyPlatformApplications < ActiveRecord::Migration[<%= A
       t.references :register, foreign_key: { to_table: "wechat_third_party_platform_registers" }, index: { name: "index_wtpp_applications_on_audit_register_id" }
       t.integer :source, default: 0
       t.references :online_submition, foreign_key: { to_table: "wechat_third_party_platform_submitions" }, index: { name: "index_wtpp_applications_on_audit_submition_id" }
+      t.string "nick_name", comment: "昵称"
+      t.string "user_name", comment: "原始 ID"
+      t.jsonb "mini_program_info", default: {}
       t.string :new_name
       t.integer :name_changed_status, default: 0
       t.string :name_rejected_reason
