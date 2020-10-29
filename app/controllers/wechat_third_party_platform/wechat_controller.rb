@@ -48,7 +48,7 @@ module WechatThirdPartyPlatform
         render json: { status: 400, message: "授权失败，找不到ID为#{params[:id]}的应用" } and return unless project_application
 
         # 根据授权码获取小程序的授权信息
-        WechatThirdPartyPlatform.api_query_auth(authorization_code: params[:auth_code])
+        resp = WechatThirdPartyPlatform.api_query_auth(authorization_code: params[:auth_code])
         auth_info = resp["authorization_info"]
         wechat_application = WechatThirdPartyPlatform::Application.find_or_create_by(appid: auth_info["authorizer_appid"])
         if wechat_application.id
@@ -62,6 +62,7 @@ module WechatThirdPartyPlatform
           refresh_token: auth_info["authorizer_refresh_token"],
           func_info: auth_info["func_info"]
         )
+
         render json: { status: 200, message: "授权成功" }
       else
         render json: { status: 400, message: "parameter error" }
