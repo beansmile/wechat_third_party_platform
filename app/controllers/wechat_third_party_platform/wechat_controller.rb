@@ -122,10 +122,7 @@ module WechatThirdPartyPlatform
     #   <SuccTime>1488856741</SuccTime>
     # </xml>
     def weapp_audit_success_handler
-      return unless audit_submition = current_application.audit_submition
-      return unless audit_submition.pending? || audit_submition.delay?
-
-      audit_submition.update(audit_result: msg_hash, state: :success)
+      current_application.handle_weapp_audit_success(msg_hash: msg_hash)
     end
 
     # 代码审核结果推送 - 审核不通过
