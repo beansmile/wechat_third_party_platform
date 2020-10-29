@@ -29,6 +29,20 @@ module WechatThirdPartyPlatform
       other: 4
     }, _suffix: true
 
+    # effective: 审核通过，submitting: 提交审核中，rejected：拒绝
+    enum name_changed_status: {
+      name_effective: 0,
+      name_submitting: 1,
+      name_rejected: 2,
+    }
+
+    enum authorization_status: {
+      authorizer_pending: 0,
+      authorizer_authorized: 1,
+      authorizer_unauthorized: 3,
+      authorizer_updateauthorized: 4
+    }
+
     belongs_to :audit_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
     belongs_to :register, class_name: "WechatThirdPartyPlatform::Register", optional: true
     belongs_to :online_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
@@ -40,7 +54,9 @@ module WechatThirdPartyPlatform
     has_one_attached :qrcode_url
 
     validates :appid, uniqueness: true
+    validate :new_name_modified_check, if: :new_name_changed?
 
+    before_save :set_name_changed_status, if: :new_name_changed?
     after_commit :enqueue_set_base_data, on: :create
 
     def client
@@ -117,6 +133,31 @@ module WechatThirdPartyPlatform
 
         project_application&.update(name: authorizer_info["nick_name"])
       end
+    end
+
+    def name_to_effective!
+      update!(
+        name_changed_status: "name_effective",
+        nick_name: new_name,
+        name_rejected_reason: nil
+      )
+    end
+
+    def reject_name_changed!(reason)
+      update!(
+        name_changed_status: "name_rejected",
+        name_rejected_reason: reason
+      )
+    end
+
+    private
+
+    def new_name_modified_check
+      errors[:base] << "小程序名字审核中，禁止更改" if name_submitting?
+    end
+
+    def set_name_changed_status
+      self.name_changed_status = "name_submitting"
     end
   end
 end

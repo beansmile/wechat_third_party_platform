@@ -19,20 +19,48 @@ module WechatThirdPartyPlatform
 
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorize_event.html
     # 授权变更通知推送-授权成功
+    # <xml>
+    #   <AppId>第三方平台appid</AppId>
+    #   <CreateTime>1413192760</CreateTime>
+    #   <InfoType>authorized</InfoType>
+    #   <AuthorizerAppid>公众号appid</AuthorizerAppid>
+    #   <AuthorizationCode>授权码</AuthorizationCode>
+    #   <AuthorizationCodeExpiredTime>过期时间</AuthorizationCodeExpiredTime>
+    #   <PreAuthCode>预授权码</PreAuthCode>
+    # <xml>
     def authorized_handler
-      # do nothing
+      if current_application.authorizer_authorized!
+        WechatThirdPartyPlatform.cache_pre_auth_code(msg_hash["PreAuthCode"])
+      end
     end
 
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorize_event.html
     # 授权变更通知推送-取消授权
+    # <xml>
+    #   <AppId>第三方平台appid</AppId>
+    #   <CreateTime>1413192760</CreateTime>
+    #   <InfoType>unauthorized</InfoType>
+    #   <AuthorizerAppid>公众号appid</AuthorizerAppid>
+    # </xml>
     def unauthorized_handler
-      # do nothing
+      current_application.authorizer_unauthorized!
     end
 
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorize_event.html
     # 授权变更通知推送-取消授权
+    # <xml>
+    #   <AppId>第三方平台appid</AppId>
+    #   <CreateTime>1413192760</CreateTime>
+    #   <InfoType>updateauthorized</InfoType>
+    #   <AuthorizerAppid>公众号appid</AuthorizerAppid>
+    #   <AuthorizationCode>授权码</AuthorizationCode>
+    #   <AuthorizationCodeExpiredTime>过期时间</AuthorizationCodeExpiredTime>
+    #   <PreAuthCode>预授权码</PreAuthCode>
+    # <xml>
     def updateauthorized_handler
-      # do nothing
+      if current_application.authorizer_updateauthorized!
+        WechatThirdPartyPlatform.cache_pre_auth_code(msg_hash["PreAuthCode"])
+      end
     end
 
     def component_verify_ticket_handler
@@ -137,7 +165,6 @@ module WechatThirdPartyPlatform
       audit_submition.update(audit_result: msg_hash, state: :delay)
     end
 
-    # 名称审核结果事件推送
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/wxa_nickname_audit.html
     # <xml>
     #   <ToUserName><![CDATA[gh_fxxxxxxxa4b2]]></ToUserName>
@@ -150,6 +177,10 @@ module WechatThirdPartyPlatform
     #   <reason>驳回原因</reason>
     # </xml>
     def wxa_nickname_audit_handler
+      return if current_application.blank? || !current_application.name_submitting?
+
+      # 审核结果 2：失败，3：成功
+      msg_hash["ret"] == 3 ? current_application.name_to_effective! : current_application.reject_name_changed!(msg_hash["reason"])
     end
 
     # 快速注册小程序审核事件推送
