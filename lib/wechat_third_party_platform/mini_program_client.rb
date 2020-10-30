@@ -16,9 +16,10 @@ module WechatThirdPartyPlatform
 
     base_uri "https://api.weixin.qq.com"
 
-    attr_accessor :appid, :access_token
+    attr_accessor :appid, :access_token, :record
 
-    def initialize(appid, access_token)
+    def initialize(appid, access_token, record)
+      @record = record
       @appid = appid
       @access_token = access_token
     end
@@ -54,6 +55,10 @@ module WechatThirdPartyPlatform
       })
     end
 
+    def refresh_record_access_token
+      record.update_access_token
+    end
+
     [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
         body = (options[:body] || {}).select { |_, v| !v.nil? }
@@ -70,7 +75,9 @@ module WechatThirdPartyPlatform
 
         response = begin
                      resp = self.class.send(method, path, body: raw_body ? body : JSON.pretty_generate(body), headers: headers, timeout: WechatThirdPartyPlatform::TIMEOUT).body
-                     JSON.parse(resp)
+                     resp = JSON.parse(resp)
+                     refresh_record_access_token if resp["errcode"] && resp["errcode"] == 42001
+                     resp
                    rescue JSON::ParserError
                      resp
                    rescue *WechatThirdPartyPlatform::HTTP_ERRORS

@@ -60,7 +60,7 @@ module WechatThirdPartyPlatform
     after_commit :enqueue_set_base_data, on: :create
 
     def client
-      @client ||= WechatThirdPartyPlatform::MiniProgramClient.new(appid, access_token)
+      @client ||= WechatThirdPartyPlatform::MiniProgramClient.new(appid, access_token, self)
     end
 
     def commit(template_id:, user_version:, user_desc:, ext_json: {})
