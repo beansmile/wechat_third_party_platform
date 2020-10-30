@@ -28,6 +28,27 @@ module WechatThirdPartyPlatform
       end
     end
 
+    def generate_application!(auth_code:)
+      response = WechatThirdPartyPlatform.api_query_auth(authorization_code: auth_code)
+
+      # 该API请求成功不会返回errcode
+      raise response["errmsg"] if response["errcode"]
+
+      auth_info = response["authorization_info"]
+
+      transaction do
+        create_application!({
+          appid: auth_info["authorizer_appid"],
+          access_token: auth_info["authorizer_access_token"],
+          refresh_token: auth_info["authorizer_refresh_token"],
+          func_info: auth_info["func_info"],
+          register_id: id
+        })
+
+        application.commit_latest_template!
+      end
+    end
+
     def set_component_phone
       self.component_phone = WechatThirdPartyPlatform.component_phone
     end

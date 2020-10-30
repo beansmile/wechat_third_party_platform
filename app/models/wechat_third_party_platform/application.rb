@@ -64,7 +64,15 @@ module WechatThirdPartyPlatform
     end
 
     def commit(template_id:, user_version:, user_desc:, ext_json: {})
-      errors.add(:base, "已有正在审核的代码") and return false if audit_submition && (audit_submition.pending? || audit_submition.delay?)
+      commit!(template_id: template_id, user_version: user_version, user_desc: user_desc, ext_json: ext_json)
+    rescue RuntimeError => e
+      errors.add(:base, e.message)
+
+      false
+    end
+
+    def commit!(template_id:, user_version:, user_desc:, ext_json: {})
+      raise "已有正在审核的代码" if audit_submition && (audit_submition.pending? || audit_submition.delay?)
 
       response = client.commit(
         template_id: template_id,
@@ -73,7 +81,7 @@ module WechatThirdPartyPlatform
         ext_json: ext_json.to_json
       )
 
-      errors.add(:base, response["errmsg"]) and return false unless response["errcode"] == 0
+      raise response["errmsg"] unless response["errcode"] == 0
 
       self.audit_submition = Submition.new(
         template_id: template_id,
@@ -83,7 +91,28 @@ module WechatThirdPartyPlatform
         application: self
       )
 
-      save
+      save!
+    end
+
+    def commit_latest_template
+      commit_latest_template!
+    rescue RuntimeError => e
+      errors.add(:base, e.message)
+
+      false
+    end
+
+    def commit_latest_template!
+      response = WechatThirdPartyPlatform.gettemplatelist
+
+      raise response["errmsg"] unless response["errcode"] == 0
+
+      # TODO 暂时根据id来判断哪个template是最新的
+      latest_template = response["template_list"].sort { |a, b| a["template_id"] <=> b["template_id"] }.last
+
+      raise "无任何代码模板" if latest_template.nil?
+
+      commit!(template_id: latest_template["template_id"], user_version: latest_template["user_version"], user_desc: latest_template["user_desc"])
     end
 
     def submit_audit(auto_release: false)
@@ -171,6 +200,23 @@ module WechatThirdPartyPlatform
 
       audit_submition.update(audit_result: msg_hash, state: :success)
       ReleaseJob.perform_later(self) if audit_submition.auto_release?
+    end
+
+    def self.handle_notify_third_fasteregister(msg_hash:)
+      info = msg_hash["info"]
+      register = Register.where({
+        name: info["name"],
+        code: info["code"],
+        code_type: info["code_type"],
+        legal_persona_wechat: info["legal_persona_wechat"],
+        legal_persona_name: info["legal_persona_name"]
+      }).last
+
+      return unless register
+
+      register.update(state: "failed", audit_result: msg_hash) and return unless msg_hash["status"] == 0
+
+      ThirdFasteregisterJob.perform_later(register, msg_hash["auth_code"])
     end
 
     private
