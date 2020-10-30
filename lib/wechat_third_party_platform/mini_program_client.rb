@@ -59,6 +59,35 @@ module WechatThirdPartyPlatform
       record.update_access_token
     end
 
+    # 获取小程序PV、UV
+    # [{
+    #    "ref_date"=>"20180713",
+    #    "session_cnt"=>39,
+    #    "visit_pv"=>142,
+    #    "visit_uv"=>12,
+    #    "visit_uv_new"=>1,
+    #    "stay_time_uv"=>202.8333,
+    #    "stay_time_session"=>62.4103,
+    #    "visit_depth"=>2.0256
+    # }]
+    def get_weanalysis_appid_daily_visit_trend(begin_date, end_date)
+      (begin_date..end_date).map do |date|
+        if %w[staging production].include?(Rails.env)
+          visit_data = WechatThirdPartyPlatform::VisitDatum.find_by(appid: appid, ref_date: date.strftime("%Y%m%d"))
+          if visit_data
+            visit_data.as_json(except: [:id, :created_at, :updated_at, :appid])
+          elsif date < Date.current
+            result = getweanalysisappiddailyvisittrend(begin_date: date, end_date: date)
+            next if result["errcode"]
+            object = result["list"][0]
+            WechatThirdPartyPlatform::VisitDatum.new(object.merge(appid: appid)).save
+
+            object
+          end
+        end
+      end
+    end
+
     [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
         body = (options[:body] || {}).select { |_, v| !v.nil? }

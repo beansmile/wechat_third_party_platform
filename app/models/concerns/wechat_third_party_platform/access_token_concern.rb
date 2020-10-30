@@ -37,7 +37,6 @@ module WechatThirdPartyPlatform
           next unless token = resp["access_token"]
         end
       end
-
       token
     end
 
