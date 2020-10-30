@@ -57,28 +57,43 @@ module WechatThirdPartyPlatform
 
     def refresh_record_access_token
       record.update_access_token
+      self.access_token = record.reload.access_token
+    end
+
+    def access_token_invalid?(invalid_code)
+      # 40001 获取 access_token 时 AppSecret 错误，或者 access_token 无效。请开发者认真比对 AppSecret 的正确性，或查看是否正在为恰当的公众号调用接口
+      # 42001 access_token 超时，请检查 access_token 的有效期，请参考基础支持 - 获取 access_token 中，对 access_token 的详细机制说明
+      # 41001 缺少 access_token 参数, access_token为空是的错误
+      [40001, 42001, 41001].include?(invalid_code)
     end
 
     [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
+        access_token_expired_retries = 0
         body = (options[:body] || {}).select { |_, v| !v.nil? }
         headers = (options[:headers] || {}).reverse_merge({
           "Content-Type" => "application/json",
           "Accept-Encoding" => "*"
         })
+        wechat_path = path
         raw_body = headers["Content-Type"] == "multipart/form-data" # 上传临时素材的Content-Type是multipart/form-data，body不需要生成字符串
-        path = "#{path}?access_token=#{access_token}" if need_access_token
 
         uuid = SecureRandom.uuid
 
-        WechatThirdPartyPlatform::LOGGER.debug("request[#{uuid}]: method: #{method}, url: #{path}, body: #{body}, headers: #{headers}")
-
         response = begin
-                     resp = self.class.send(method, path, body: raw_body ? body : JSON.pretty_generate(body), headers: headers, timeout: WechatThirdPartyPlatform::TIMEOUT).body
+                     wechat_path = "#{path}?access_token=#{access_token}" if need_access_token
+                     WechatThirdPartyPlatform::LOGGER.debug("request[#{uuid}]: method: #{method}, url: #{wechat_path}, body: #{body}, headers: #{headers}")
+
+                     resp = self.class.send(method, wechat_path, body: raw_body ? body : JSON.pretty_generate(body), headers: headers, timeout: WechatThirdPartyPlatform::TIMEOUT).body
                      resp = JSON.parse(resp)
-                     refresh_record_access_token if resp["errcode"] && resp["errcode"] == 42001
+                     raise AccessTokenExpired if resp["errcode"] && access_token_invalid?(resp["errcode"])
                      resp
                    rescue JSON::ParserError
+                     resp
+                   rescue AccessTokenExpired
+                     access_token_expired_retries += 1
+                     refresh_record_access_token
+                     retry if access_token_expired_retries == 1
                      resp
                    rescue *WechatThirdPartyPlatform::HTTP_ERRORS
                      { "errmsg" => "连接超时" }
@@ -89,5 +104,7 @@ module WechatThirdPartyPlatform
         response
       end
     end
+
+    class AccessTokenExpired < StandardError; end
   end
 end
