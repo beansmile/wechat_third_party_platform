@@ -53,6 +53,35 @@ module WechatThirdPartyPlatform
       })
     end
 
+    # 获取小程序PV、UV
+    # [{
+    #    "ref_date"=>"20180713",
+    #    "session_cnt"=>39,
+    #    "visit_pv"=>142,
+    #    "visit_uv"=>12,
+    #    "visit_uv_new"=>1,
+    #    "stay_time_uv"=>202.8333,
+    #    "stay_time_session"=>62.4103,
+    #    "visit_depth"=>2.0256
+    # }]
+    def get_weanalysis_appid_daily_visit_trend(begin_date, end_date)
+      (begin_date..end_date).map do |date|
+        if %w[staging production].include?(Rails.env)
+          analysis_key = "getweanalysisappiddailyvisittrend/#{appid}/#{date}"
+          data_in_redis = Rails.cache.fetch(analysis_key)
+          if data_in_redis
+            ActiveSupport::JSON.decode(data_in_redis)
+          elsif date < Date.current
+            result = http_post("/datacube/getweanalysisappiddailyvisittrend", body: { begin_date: date, end_date: date })
+            next if result["errcode"]
+            object = result["list"][0]
+            Rails.cache.write(analysis_key, object.to_json, expires_in: 1.month)
+            object
+          end
+        end
+      end
+    end
+
     [:get, :post].each do |method|
       define_method "http_#{method}" do |path, options = {}, need_access_token = true|
         body = (options[:body] || {}).select { |_, v| !v.nil? }
