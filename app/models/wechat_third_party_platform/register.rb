@@ -48,7 +48,7 @@ module WechatThirdPartyPlatform
           register_id: id
         })
 
-        application.commit_latest_template!
+        wechat_application.commit_latest_template!
       end
     end
 
