@@ -4,6 +4,7 @@ require "wechat_third_party_platform/engine"
 require "wechat_third_party_platform/message_encryptor"
 require "wechat_third_party_platform/api"
 require "wechat_third_party_platform/mini_program_client"
+require "wechat_third_party_platform/mixin"
 
 module WechatThirdPartyPlatform
   include HTTParty
@@ -29,8 +30,9 @@ module WechatThirdPartyPlatform
 
 
   mattr_accessor :component_appid, :component_appsecret, :message_token, :message_key, :auth_redirect_url, :component_phone
-  mattr_accessor :project_application_class_name
+  mattr_accessor :project_application_class_name, :set_wxacode_page_option
   @@project_application_class_name ||= "::Application"
+  @@set_wxacode_page_option ||= true
 
   class<< self
     def component_auth_url(application_id:)
@@ -193,4 +195,8 @@ module WechatThirdPartyPlatform
       end
     end
   end
+end
+
+ActiveSupport.on_load(:active_record) do
+  include WechatThirdPartyPlatform::Mixin
 end
