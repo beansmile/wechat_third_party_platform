@@ -12,6 +12,7 @@ class CreateWechatThirdPartyPlatformRegisters < ActiveRecord::Migration[<%= Acti
       t.jsonb :audit_result, default: {}
       t.integer :state, default: 0
       t.belongs_to :creator
+      t.belongs_to :application
 
       t.timestamps
     end

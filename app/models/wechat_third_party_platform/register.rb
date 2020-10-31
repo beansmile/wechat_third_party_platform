@@ -11,9 +11,10 @@ module WechatThirdPartyPlatform
       failed: 2
     }
 
-    has_one :application, class_name: "WechatThirdPartyPlatform::Application"
+    has_one :wechat_application, class_name: "WechatThirdPartyPlatform::Application", foreign_key: :register_id
+    belongs_to :application, class_name: "::Application"
 
-    after_create :sync_to_wechat
+    after_save :sync_to_wechat
 
     def sync_to_wechat
       response = WechatThirdPartyPlatform.create_fastregisterweapp({
@@ -39,7 +40,7 @@ module WechatThirdPartyPlatform
       auth_info = response["authorization_info"]
 
       transaction do
-        create_application!({
+        create_wechat_application!({
           appid: auth_info["authorizer_appid"],
           access_token: auth_info["authorizer_access_token"],
           refresh_token: auth_info["authorizer_refresh_token"],
