@@ -5,6 +5,7 @@ module WechatThirdPartyPlatform
     require "open-uri"
 
     include AccessTokenConcern
+    include AuthorizationHandlerConcern
 
     enum source: { wechat: 0, platform: 1 }
 
