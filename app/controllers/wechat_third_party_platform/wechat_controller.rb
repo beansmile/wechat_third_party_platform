@@ -73,15 +73,15 @@ module WechatThirdPartyPlatform
     def auth_callback
       if params[:auth_code] && params[:expires_in]
         project_application = WechatThirdPartyPlatform.project_application_class_name.constantize.find_by(id: params[:id])
-        render json: { status: 400, message: "授权失败，找不到ID为#{params[:id]}的应用" } and return unless project_application
+        @message = "授权失败，找不到ID为#{params[:id]}的应用" and return unless project_application
 
         # 根据授权码获取小程序的授权信息
         resp = WechatThirdPartyPlatform.api_query_auth(authorization_code: params[:auth_code])
         auth_info = resp["authorization_info"]
         wechat_application = WechatThirdPartyPlatform::Application.find_or_create_by(appid: auth_info["authorizer_appid"])
         if wechat_application.id
-          render json: { status: 400, message: "授权失败，当前应用已授权小程序，不可授权为其他小程序" } and return if project_application.wechat_application && project_application.wechat_application.id != wechat_application.id
-          render json: { status: 400, message: "授权失败，当前小程序已授权给其他应用" } and return if wechat_application.project_application && wechat_application.project_application.id != project_application.id
+          @message = "授权失败，当前应用已授权小程序，不可授权为其他小程序" and return if project_application.wechat_application && project_application.wechat_application.id != wechat_application.id
+          @message = "授权失败，当前小程序已授权给其他应用" and return if wechat_application.project_application && wechat_application.project_application.id != project_application.id
         end
 
         project_application.update(wechat_application: wechat_application, name: (wechat_application.nick_name || project_application.name))
@@ -91,11 +91,11 @@ module WechatThirdPartyPlatform
           func_info: auth_info["func_info"]
         )
 
-        render json: { status: 400, message: wechat_application.errors.full_messages.join(",") } and return unless wechat_application.commit_latest_template
+        @message = wechat_application.errors.full_messages.join(",") and return unless wechat_application.commit_latest_template
 
-        render json: { status: 200, message: "授权成功" }
+        @message = "授权成功"
       else
-        render json: { status: 400, message: "parameter error" }
+        @message = "parameter error"
       end
     end
 
