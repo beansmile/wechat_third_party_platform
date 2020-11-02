@@ -93,6 +93,10 @@ module WechatThirdPartyPlatform
       )
 
       save!
+
+      WechatThirdPartyPlatform::GenerateTrialVersionQrcodeJob.perform_later(audit_submition)
+
+      true
     end
 
     def commit_latest_template
