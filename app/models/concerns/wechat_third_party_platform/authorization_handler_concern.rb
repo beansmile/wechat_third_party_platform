@@ -50,12 +50,6 @@ module WechatThirdPartyPlatform
       end
     end
 
-    def component_verify_ticket_handler(msg_hash)
-      # msg_hash为{"AppId"=>"wx6049dd9d0df6e593", "CreateTime"=>"1603094188", "InfoType"=>"component_verify_ticket", "ComponentVerifyTicket"=>"ticket@@@Hcp1sWsxoI7cuskY_boQJLDC6RPKc5PR7v7SzeHjwFv2CZAyEJCSOEAptlmRLuFmLMyEcYoMpcVPFr4w5jSn9Q"}
-      wtpp_verify_ticket = msg_hash["ComponentVerifyTicket"]
-      Rails.cache.write("wtpp_verify_ticket", wtpp_verify_ticket, expires_in: 115.minutes)
-    end
-
     # 代码审核结果推送 - 审核通过
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code/audit_event.html
     # <xml>
@@ -124,28 +118,6 @@ module WechatThirdPartyPlatform
 
       # 审核结果 2：失败，3：成功
       msg_hash["ret"] == 3 ? name_to_effective! : reject_name_changed!(msg_hash["reason"])
-    end
-
-    # 快速注册小程序审核事件推送
-    # <xml>
-    #     <AppId><![CDATA[第三方平台appid]]></AppId>
-    #     <CreateTime>1535442403</CreateTime>
-    #     <InfoType><![CDATA[notify_third_fasteregister]]></InfoType>
-    #     <appid>创建小程序appid<appid>
-    #     <status>0</status>
-    #     <auth_code>xxxxx第三方授权码</auth_code>
-    #     <msg>OK</msg>
-    #     <info>
-    #     <name><![CDATA[企业名称]]></name>
-    #     <code><![CDATA[企业代码]]></code>
-    #     <code_type>1</code_type>
-    #     <legal_persona_wechat><![CDATA[法人微信号]]></legal_persona_wechat>
-    #     <legal_persona_name><![CDATA[法人姓名]]></legal_persona_name>
-    #     <component_phone><![CDATA[第三方联系电话]]></component_phone>
-    #     </info>
-    # </xml>
-    def notify_third_fasteregister_handler(msg_hash)
-      Application.handle_notify_third_fasteregister(msg_hash: msg_hash)
     end
   end
 end
