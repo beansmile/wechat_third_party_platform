@@ -5,6 +5,8 @@ module WechatThirdPartyPlatform
     belongs_to :application, class_name: "WechatThirdPartyPlatform::Application"
     has_one :audit_application, class_name: "WechatThirdPartyPlatform::Application", foreign_key: :audit_submition_id, dependent: :nullify
 
+    has_one_attached :trial_version_qrcode
+
     enum state: {
       # 待提交审核
       init: 0,
@@ -24,6 +26,28 @@ module WechatThirdPartyPlatform
 
     def reason
       @reason ||= audit_result["Reason"]
+    end
+
+    def generate_trial_version_qrcode!
+      response = application.client.get_qrcode(path: "pages/index")
+
+      # 成功会直接将返回的二进制结果，所以这里判断是否返回errmsg即可确认是出错
+      raise response["errmsg"] if response["errmsg"]
+
+      filename = "#{Digest::MD5.hexdigest(response)}.jpg"
+
+      folder = "./tmp/trial_version_qrcode"
+      temp_file_path = "#{folder}/#{filename}"
+
+      FileUtils.mkdir_p(folder)
+
+      open(temp_file_path, "wb") do |file|
+        file << response
+      end
+
+      self.trial_version_qrcode.attach(io: File.open(temp_file_path), filename: filename, content_type: "image/jpeg")
+
+      FileUtils.rm_f(temp_file_path)
     end
   end
 end
