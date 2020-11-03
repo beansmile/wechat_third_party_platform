@@ -138,7 +138,7 @@ module WechatThirdPartyPlatform
       false
     end
 
-    def commit_latest_template!
+    def commit_latest_template!(ext_json = {})
       response = WechatThirdPartyPlatform.gettemplatelist
 
       raise response["errmsg"] unless response["errcode"] == 0
@@ -148,7 +148,7 @@ module WechatThirdPartyPlatform
 
       raise "无任何代码模板" if latest_template.nil?
 
-      commit!(template_id: latest_template["template_id"], user_version: latest_template["user_version"], user_desc: latest_template["user_desc"])
+      commit!(template_id: latest_template["template_id"], user_version: latest_template["user_version"], user_desc: latest_template["user_desc"], ext_json: ext_json)
     end
 
     def submit_audit(auto_release: false)
