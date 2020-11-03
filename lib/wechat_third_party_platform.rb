@@ -34,6 +34,18 @@ module WechatThirdPartyPlatform
   @@project_application_class_name ||= "::Application"
   @@set_wxacode_page_option ||= true
 
+  mattr_accessor :requestdomain
+  @@requestdomain ||= []
+
+  mattr_accessor :wsrequestdomain
+  @@wsrequestdomain ||= []
+
+  mattr_accessor :uploaddomain
+  @@uploaddomain ||= []
+
+  mattr_accessor :downloaddomain
+  @@downloaddomain ||= []
+
   class<< self
     def component_auth_url(application_id:)
       "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=#{component_appid}&pre_auth_code=#{api_create_preauthcode}&redirect_uri=#{auth_redirect_url}/#{application_id}&auth_type=2"

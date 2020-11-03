@@ -11,7 +11,7 @@ module WechatThirdPartyPlatform::API
 
     # 设置服务器域名
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/Server_Address_Configuration.html
-    def modify_domain(aciton:, requestdomain: nil, wsrequestdomain: nil, uploaddomain: nil, downloaddomain: nil)
+    def modify_domain(action:, requestdomain: nil, wsrequestdomain: nil, uploaddomain: nil, downloaddomain: nil)
       body = {
         action: action,
         requestdomain: requestdomain,

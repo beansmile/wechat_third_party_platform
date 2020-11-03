@@ -58,10 +58,41 @@ module WechatThirdPartyPlatform
     validate :new_name_modified_check, if: :new_name_changed?
 
     before_save :set_name_changed_status, if: :new_name_changed?
-    after_commit :enqueue_set_base_data, on: :create
 
     def client
       @client ||= WechatThirdPartyPlatform::MiniProgramClient.new(appid, access_token, self)
+    end
+
+    def set_default_domain
+      set_default_domain!
+    rescue RuntimeError => e
+      errors.add(:base, e.message)
+
+      false
+    end
+
+    def set_default_domain!
+      get_domain_response = client.modify_domain(action: :get)
+
+      raise get_domain_response["errmsg"] unless get_domain_response["errcode"] == 0
+
+      # 如果小程序domain配置已包含所有默认domain配置，则不发送修改请求，不然会返回错误信息
+      return if (get_domain_response["requestdomain"] & WechatThirdPartyPlatform.requestdomain) == WechatThirdPartyPlatform.requestdomain &&
+        (get_domain_response["wsrequestdomain"] & WechatThirdPartyPlatform.wsrequestdomain) == WechatThirdPartyPlatform.wsrequestdomain &&
+        (get_domain_response["uploaddomain"] & WechatThirdPartyPlatform.uploaddomain) == WechatThirdPartyPlatform.uploaddomain &&
+        (get_domain_response["downloaddomain"] & WechatThirdPartyPlatform.downloaddomain) == WechatThirdPartyPlatform.downloaddomain
+
+      response = client.modify_domain(
+        action: "add",
+        requestdomain: WechatThirdPartyPlatform.requestdomain,
+        wsrequestdomain: WechatThirdPartyPlatform.wsrequestdomain,
+        uploaddomain: WechatThirdPartyPlatform.uploaddomain,
+        downloaddomain: WechatThirdPartyPlatform.downloaddomain
+      )
+
+      raise response["errmsg"] unless response["errcode"] == 0
+
+      true
     end
 
     def commit(template_id:, user_version:, user_desc:, ext_json: {})
@@ -163,26 +194,28 @@ module WechatThirdPartyPlatform
       WechatThirdPartyPlatform::ApplicationSetBaseDataJob.perform_later(self)
     end
 
-    def set_base_data
+    def set_base_data!
       info = client.api_get_authorizer_info
-      if authorizer_info = info["authorizer_info"]
-        head_img_file = open(authorizer_info["head_img"])
-        qrcode_url_file = open(authorizer_info["qrcode_url"])
-        head_img_blob = ActiveStorage::Blob.create_after_upload!(io: head_img_file, filename: SecureRandom.uuid, content_type: head_img_file.meta["content-type"])
-        qrcode_url_blob = ActiveStorage::Blob.create_after_upload!(io: qrcode_url_file, filename: SecureRandom.uuid, content_type: qrcode_url_file.meta["content-type"])
 
-        update(
-          nick_name: authorizer_info["nick_name"],
-          user_name: authorizer_info["user_name"],
-          principal_name: authorizer_info["principal_name"],
-          mini_program_info: authorizer_info["MiniProgramInfo"],
-          head_img: head_img_blob.signed_id,
-          qrcode_url: qrcode_url_blob.signed_id,
-          refresh_token: info.dig("authorization_info", "authorizer_refresh_token") || refresh_token
-        )
+      raise info["errmsg"] if info["errmsg"]
 
-        project_application&.update(name: authorizer_info["nick_name"])
-      end
+      authorizer_info = info["authorizer_info"]
+      head_img_file = open(authorizer_info["head_img"])
+      qrcode_url_file = open(authorizer_info["qrcode_url"])
+      head_img_blob = ActiveStorage::Blob.create_after_upload!(io: head_img_file, filename: SecureRandom.uuid, content_type: head_img_file.meta["content-type"])
+      qrcode_url_blob = ActiveStorage::Blob.create_after_upload!(io: qrcode_url_file, filename: SecureRandom.uuid, content_type: qrcode_url_file.meta["content-type"])
+
+      update!(
+        nick_name: authorizer_info["nick_name"],
+        user_name: authorizer_info["user_name"],
+        principal_name: authorizer_info["principal_name"],
+        mini_program_info: authorizer_info["MiniProgramInfo"],
+        head_img: head_img_blob.signed_id,
+        qrcode_url: qrcode_url_blob.signed_id,
+        refresh_token: info.dig("authorization_info", "authorizer_refresh_token") || refresh_token
+      )
+
+      project_application&.update!(name: authorizer_info["nick_name"])
     end
 
     def name_to_effective!

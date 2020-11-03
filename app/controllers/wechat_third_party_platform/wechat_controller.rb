@@ -43,6 +43,8 @@ module WechatThirdPartyPlatform
 
         @message = wechat_application.errors.full_messages.join(",") and return unless wechat_application.commit_latest_template
 
+        WechatThirdPartyPlatform::BindingApplicationJob.perform_later(wechat_application)
+
         @message = "授权成功"
       else
         @message = "parameter error"

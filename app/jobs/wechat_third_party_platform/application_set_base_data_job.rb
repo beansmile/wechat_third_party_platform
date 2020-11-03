@@ -2,6 +2,6 @@
 
 class WechatThirdPartyPlatform::ApplicationSetBaseDataJob < ApplicationJob
   def perform(application)
-    application.set_base_data
+    application.set_base_data!
   end
 end

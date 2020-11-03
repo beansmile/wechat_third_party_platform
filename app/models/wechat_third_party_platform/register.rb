@@ -49,6 +49,7 @@ module WechatThirdPartyPlatform
         })
 
         wechat_application.commit_latest_template!
+        WechatThirdPartyPlatform::BindingApplicationJob.perform_later(self)
       end
     end
 
