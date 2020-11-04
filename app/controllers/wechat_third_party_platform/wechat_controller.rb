@@ -29,17 +29,19 @@ module WechatThirdPartyPlatform
         resp = WechatThirdPartyPlatform.api_query_auth(authorization_code: params[:auth_code])
         auth_info = resp["authorization_info"]
         wechat_application = WechatThirdPartyPlatform::Application.find_or_create_by(appid: auth_info["authorizer_appid"])
+        # 小程序重新授权，refresh_token可能有所更新，需将最新的refresh_token存下来
+        wechat_application.update(
+          access_token: auth_info["authorizer_access_token"],
+          refresh_token: auth_info["authorizer_refresh_token"],
+          func_info: auth_info["func_info"]
+        )
+
         if wechat_application.id
           @message = "授权失败，当前应用已授权小程序，不可授权为其他小程序" and return if project_application.wechat_application && project_application.wechat_application_id != wechat_application.id
           @message = "授权失败，当前小程序已授权给其他应用" and return if wechat_application.project_application && wechat_application.project_application.id != project_application.id
         end
 
         project_application.update(wechat_application: wechat_application, name: (wechat_application.nick_name || project_application.name))
-        wechat_application.update(
-          access_token: auth_info["authorizer_access_token"],
-          refresh_token: auth_info["authorizer_refresh_token"],
-          func_info: auth_info["func_info"]
-        )
 
         @message = wechat_application.errors.full_messages.join(",") and return unless wechat_application.commit_latest_template
 
