@@ -5,6 +5,7 @@ require "wechat_third_party_platform/message_encryptor"
 require "wechat_third_party_platform/api"
 require "wechat_third_party_platform/mini_program_client"
 require "wechat_third_party_platform/mixin"
+require "wechat_third_party_platform/visit_distribution_data"
 
 module WechatThirdPartyPlatform
   include HTTParty
