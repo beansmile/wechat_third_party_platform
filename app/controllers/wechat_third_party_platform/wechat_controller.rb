@@ -21,6 +21,7 @@ module WechatThirdPartyPlatform
 
     # 默认小程序授权之后redirect url
     def auth_callback
+      @redirect_to = "original_page"
       if params[:auth_code] && params[:expires_in]
         project_application = WechatThirdPartyPlatform.project_application_class_name.constantize.find_by(id: params[:id])
         @message = "授权失败，找不到ID为#{params[:id]}的应用" and return unless project_application
@@ -48,6 +49,7 @@ module WechatThirdPartyPlatform
         WechatThirdPartyPlatform::BindingApplicationJob.perform_later(wechat_application)
 
         @message = "授权成功"
+        @redirect_to = "home_page"
       else
         @message = "parameter error"
       end

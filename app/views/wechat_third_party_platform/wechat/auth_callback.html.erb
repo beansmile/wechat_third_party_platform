@@ -1,4 +1,8 @@
 <script>
   alert("<%= @message %>");
-  history.go(-2);
+  <% if @redirect_to == "home_page" %>
+    location.href = "<%= Rails.application.credentials.dig(Rails.env.to_sym, :host) %>/admin";
+  <% else %>
+    history.go(-2);
+  <% end %>
 </script>

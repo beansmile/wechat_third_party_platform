@@ -92,6 +92,10 @@ module WechatThirdPartyPlatform
 
       raise response["errmsg"] unless response["errcode"] == 0
 
+      # 如果没有指定 action，则默认将第三方平台登记的小程序业务域名全部添加到该小程序
+      resp =  client.setwebviewdomain
+      raise resp["errmsg"] unless resp["errcode"] == 0
+
       true
     end
 

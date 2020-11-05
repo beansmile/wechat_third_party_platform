@@ -25,10 +25,10 @@ module WechatThirdPartyPlatform::API
     # 设置业务域名
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/setwebviewdomain.html
     def setwebviewdomain(action: nil, webviewdomain: nil)
-      http_post("/wxa/setwebviewdomain", body: {
-        action: action,
-        webviewdomain: webviewdomain,
-      })
+      body = {}
+      body.merge!(action: action) if action
+      body.merge!(webviewdomain: webviewdomain) if webviewdomain
+      http_post("/wxa/setwebviewdomain", body)
     end
 
     # 设置名称
