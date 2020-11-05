@@ -88,9 +88,9 @@ module WechatThirdPartyPlatform
             result = getweanalysisappiddailyvisittrend(begin_date: date, end_date: date)
             next if result["errcode"]
             object = result["list"][0]
-            WechatThirdPartyPlatform::VisitDatum.new(object.merge(appid: appid)).save
+            WechatThirdPartyPlatform::VisitDatum.new(object.merge(appid: appid)).save if object
 
-            object
+            object || {}
           end
         end
       end
