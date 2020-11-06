@@ -99,7 +99,7 @@ module WechatThirdPartyPlatform
       true
     end
 
-    def commit(template_id:, user_version:, user_desc:, ext_json: {})
+    def commit(template_id:, user_version:, user_desc:)
       commit!(template_id: template_id, user_version: user_version, user_desc: user_desc, ext_json: ext_json)
     rescue RuntimeError => e
       errors.add(:base, e.message)
@@ -107,8 +107,15 @@ module WechatThirdPartyPlatform
       false
     end
 
-    def commit!(template_id:, user_version:, user_desc:, ext_json: {})
+    def commit!(template_id:, user_version:, user_desc:)
       raise "已有正在审核的代码" if audit_submition && (audit_submition.pending? || audit_submition.delay?)
+
+      ext_json = if project_application
+                   # TODO 这里的project_application.app_config会与项目耦合，后面需要把app_config关联到当前model
+                   project_application.app_config.format_ext_json
+                 else
+                   {}
+                 end
 
       response = client.commit(
         template_id: template_id,
@@ -142,7 +149,7 @@ module WechatThirdPartyPlatform
       false
     end
 
-    def commit_latest_template!(ext_json = {})
+    def commit_latest_template!
       response = WechatThirdPartyPlatform.gettemplatelist
 
       raise response["errmsg"] unless response["errcode"] == 0
@@ -152,7 +159,7 @@ module WechatThirdPartyPlatform
 
       raise "无任何代码模板" if latest_template.nil?
 
-      commit!(template_id: latest_template["template_id"], user_version: latest_template["user_version"], user_desc: latest_template["user_desc"], ext_json: ext_json)
+      commit!(template_id: latest_template["template_id"], user_version: latest_template["user_version"], user_desc: latest_template["user_desc"])
     end
 
     def submit_audit(auto_release: false)
