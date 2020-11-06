@@ -100,7 +100,7 @@ module WechatThirdPartyPlatform
     end
 
     def commit(template_id:, user_version:, user_desc:)
-      commit!(template_id: template_id, user_version: user_version, user_desc: user_desc, ext_json: ext_json)
+      commit!(template_id: template_id, user_version: user_version, user_desc: user_desc)
     rescue RuntimeError => e
       errors.add(:base, e.message)
 
