@@ -8,16 +8,14 @@ module WechatThirdPartyPlatform
     has_one_attached :trial_version_qrcode
 
     enum state: {
-      # 待提交审核
-      init: 0,
       # 审核中
-      pending: 1,
+      pending: 0,
       # 审核通过
-      success: 2,
+      success: 1,
       # 审核不通过
-      fail: 3,
+      fail: 2,
       # 审核延后
-      delay: 4
+      delay: 3
     }
 
     validates :template_id, presence: true

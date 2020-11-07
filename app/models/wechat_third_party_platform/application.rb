@@ -47,6 +47,7 @@ module WechatThirdPartyPlatform
     belongs_to :audit_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
     belongs_to :register, class_name: "WechatThirdPartyPlatform::Register", optional: true
     belongs_to :online_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
+    belongs_to :trial_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
 
     has_many :testers, dependent: :destroy
     has_one :project_application, class_name: WechatThirdPartyPlatform.project_application_class_name, foreign_key: :wechat_application_id, dependent: :nullify
@@ -108,8 +109,6 @@ module WechatThirdPartyPlatform
     end
 
     def commit!(template_id:, user_version:, user_desc:)
-      raise "已有正在审核的代码" if audit_submition && (audit_submition.pending? || audit_submition.delay?)
-
       ext_json = if project_application
                    # TODO 这里的project_application.app_config会与项目耦合，后面需要把app_config关联到当前model
                    project_application.app_config.format_ext_json
@@ -126,7 +125,7 @@ module WechatThirdPartyPlatform
 
       raise response["errmsg"] unless response["errcode"] == 0
 
-      self.audit_submition = Submition.new(
+      self.trial_submition = Submition.new(
         template_id: template_id,
         ext_json: ext_json,
         user_version: user_version,
@@ -136,7 +135,7 @@ module WechatThirdPartyPlatform
 
       save!
 
-      WechatThirdPartyPlatform::GenerateTrialVersionQrcodeJob.perform_later(audit_submition)
+      WechatThirdPartyPlatform::GenerateTrialVersionQrcodeJob.perform_later(trial_submition)
 
       true
     end
@@ -171,15 +170,15 @@ module WechatThirdPartyPlatform
     end
 
     def submit_audit!(auto_release: false)
-      raise "请先上传代码" unless audit_submition
-      raise "已有正在审核的代码" if audit_submition.pending? || audit_submition.delay?
+      raise "请先上传代码" unless trial_submition
+      raise "已有正在审核的代码" if audit_submition && (audit_submition.pending? || audit_submition.delay?)
 
       # TODO 后期需要支持item_list，preview_info，version_desc等参数
       response = client.submit_audit
 
       raise response["errmsg"] unless response["errcode"] == 0
 
-      audit_submition.update!(auditid: response["auditid"], audit_result: {}, state: :pending, auto_release: auto_release)
+      create_audit_submition!(trial_submition.dup.merge(auto_release: auto_release))
     end
 
     def release
