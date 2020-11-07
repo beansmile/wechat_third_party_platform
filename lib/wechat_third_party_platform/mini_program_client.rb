@@ -90,7 +90,7 @@ module WechatThirdPartyPlatform
             object = result["list"][0]
             WechatThirdPartyPlatform::VisitDatum.new(object.merge(appid: appid)).save if object
 
-            object || {}
+            object
           end
         end
       end
