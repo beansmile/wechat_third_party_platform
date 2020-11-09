@@ -194,7 +194,7 @@ module WechatThirdPartyPlatform
     end
 
     def release!
-      raise "请先上传代码" unless audit_submition
+      raise "请先提交审核" unless audit_submition
       raise "代码尚未通过审核" unless audit_submition.success?
 
       response = client.release
