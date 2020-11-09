@@ -10,6 +10,10 @@ module WechatThirdPartyPlatform
     before_create :create_wechat_tester
     before_destroy :remove_wechat_tester
 
+    def display_name
+      wechat_id
+    end
+
     private
     # {
     #   "errcode": 0,

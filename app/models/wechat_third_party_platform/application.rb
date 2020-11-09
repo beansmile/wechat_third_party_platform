@@ -64,6 +64,10 @@ module WechatThirdPartyPlatform
       @client ||= WechatThirdPartyPlatform::MiniProgramClient.new(appid, access_token, self)
     end
 
+    def display_name
+      project_application&.display_name || appid
+    end
+
     def set_default_domain
       set_default_domain!
     rescue RuntimeError => e
