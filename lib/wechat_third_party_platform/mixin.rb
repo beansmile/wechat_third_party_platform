@@ -12,24 +12,31 @@ module WechatThirdPartyPlatform
 
         send :define_method, "set_#{column}_with_unlimited_wxacode" do
           mini_program_client = if client.is_a?(String) || client.is_a?(Symbol)
-                     send(client)
-                   else
-                     instance_exec(&client)
-                   end
+                                  send(client)
+                                else
+                                  instance_exec(&client)
+                                end
           # 关联了小程序才可创建二维码
           return if !mini_program_client || send(column).attached?
 
           scene_value = if scene
-                    if scene.is_a?(String) || scene.is_a?(Symbol)
-                      send(scene)
-                    else
-                      instance_exec(&scene)
-                    end
-                  else
-                    "id=#{id}"
-                  end
+                          if scene.is_a?(String) || scene.is_a?(Symbol)
+                            send(scene)
+                          else
+                            instance_exec(&scene)
+                          end
+                        else
+                          "id=#{id}"
+                        end
 
-          page = nil unless WechatThirdPartyPlatform.set_wxacode_page_option
+          set_wxacode_page_option = WechatThirdPartyPlatform.set_wxacode_page_option
+          can_set_wxacode_page_option = if !!set_wxacode_page_option == set_wxacode_page_option
+                                          set_wxacode_page_option
+                                        else
+                                          instance_exec(&set_wxacode_page_option)
+                                        end
+
+          page = nil unless can_set_wxacode_page_option
           response = mini_program_client.getwxacodeunlimit(scene: scene_value, page: page, width: width, auto_color: auto_color, line_color: line_color, is_hyaline: is_hyaline)
           if response.is_a?(String)
             img_type = is_hyaline ? "png" : "jpg"
