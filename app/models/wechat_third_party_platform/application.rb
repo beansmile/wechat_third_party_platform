@@ -4,6 +4,7 @@ module WechatThirdPartyPlatform
   class Application < ApplicationRecord
     require "open-uri"
 
+    include AASM
     include AccessTokenConcern
     include AuthorizationHandlerConcern
 
@@ -40,9 +41,21 @@ module WechatThirdPartyPlatform
     enum authorization_status: {
       authorizer_pending: 0,
       authorizer_authorized: 1,
-      authorizer_unauthorized: 3,
-      authorizer_updateauthorized: 4
+      authorizer_unauthorized: 2,
+      authorizer_updateauthorized: 3
     }
+
+    aasm column: :authorization_status, enum: true do
+      state :authorizer_pending, initial: true
+      state :authorizer_authorized
+      state :authorizer_unauthorized
+      state :authorizer_updateauthorized
+
+      event :authorization_unauthorize, after_commit: :unbind_application! do
+        transitions from: [:authorizer_pending, :authorizer_authorized, :authorizer_updateauthorized],
+                    to: :authorizer_unauthorized
+      end
+    end
 
     belongs_to :audit_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
     belongs_to :register, class_name: "WechatThirdPartyPlatform::Register", optional: true
@@ -279,6 +292,10 @@ module WechatThirdPartyPlatform
 
     def set_name_changed_status
       self.name_changed_status = "name_submitting"
+    end
+
+    def unbind_application!
+      project_application&.unbind_application!
     end
   end
 end

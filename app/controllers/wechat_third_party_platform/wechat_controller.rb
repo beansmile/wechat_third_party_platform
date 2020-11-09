@@ -12,8 +12,8 @@ module WechatThirdPartyPlatform
     def authorization_events
       LOGGER.debug("request: params: #{params.inspect}, msg_hash: #{msg_hash.inspect}")
       event_handler = "#{msg_hash["InfoType"]}_handler"
-      # component_verify_ticket_handler
-      # notify_third_fasteregister_handler
+      # component_verify_ticket_handler、notify_third_fasteregister_handler
+      # authorized_handler、unauthorized_handler、updateauthorized_handler
       send(event_handler) if respond_to?(event_handler, true)
 
       render plain: "success"
@@ -69,6 +69,18 @@ module WechatThirdPartyPlatform
     end
 
     protected
+
+    def authorized_handler
+      current_application.authorized_handler(msg_hash)
+    end
+
+    def unauthorized_handler
+      current_application.unauthorized_handler(msg_hash)
+    end
+
+    def updateauthorized_handler
+      current_application.updateauthorized_handler(msg_hash)
+    end
 
     # 快速注册小程序审核事件推送
     # <xml>

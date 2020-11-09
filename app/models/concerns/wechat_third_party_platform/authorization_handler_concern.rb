@@ -30,7 +30,7 @@ module WechatThirdPartyPlatform
     #   <AuthorizerAppid>公众号appid</AuthorizerAppid>
     # </xml>
     def unauthorized_handler(msg_hash)
-      authorizer_unauthorized!
+      authorization_unauthorize!
     end
 
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorize_event.html
