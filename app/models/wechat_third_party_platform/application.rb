@@ -182,7 +182,7 @@ module WechatThirdPartyPlatform
 
       raise response["errmsg"] unless response["errcode"] == 0
 
-      create_audit_submition!(trial_submition.dup.attributes.merge(auto_release: auto_release))
+      update(audit_submition: Submition.create!(trial_submition.dup.attributes.merge({ "auditid" => response["auditid"], "auto_release" => auto_release })))
     end
 
     def release
