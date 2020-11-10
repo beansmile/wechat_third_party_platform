@@ -85,7 +85,7 @@ module WechatThirdPartyPlatform
 
       resp = http_post("/cgi-bin/component/api_create_preauthcode", { body: {
         component_appid: component_appid
-      }}, { need_access_token: false, format_data: false })
+      }}, { format_data: false })
 
       pre_auth_code = resp["pre_auth_code"]
       cache_pre_auth_code(pre_auth_code)
