@@ -6,6 +6,7 @@ require "wechat_third_party_platform/api"
 require "wechat_third_party_platform/mini_program_client"
 require "wechat_third_party_platform/mixin"
 require "wechat_third_party_platform/visit_distribution_data"
+require "wechat_third_party_platform/result"
 
 module WechatThirdPartyPlatform
   include HTTParty
@@ -72,7 +73,7 @@ module WechatThirdPartyPlatform
         component_appid: component_appid,
         component_appsecret: component_appsecret,
         component_verify_ticket: component_verify_ticket
-      } }, false)
+      } }, { need_access_token: false })
     end
 
     # 预授权码
@@ -82,9 +83,9 @@ module WechatThirdPartyPlatform
 
       return pre_auth_code if pre_auth_code
 
-      resp = http_post("/cgi-bin/component/api_create_preauthcode", body: {
+      resp = http_post("/cgi-bin/component/api_create_preauthcode", { body: {
         component_appid: component_appid
-      })
+      }}, { need_access_token: false, format_data: false })
 
       pre_auth_code = resp["pre_auth_code"]
       cache_pre_auth_code(pre_auth_code)
@@ -126,10 +127,10 @@ module WechatThirdPartyPlatform
     # 使用授权码获取授权信息
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/authorization_info.html
     def api_query_auth(authorization_code:)
-      http_post("/cgi-bin/component/api_query_auth", body: {
+      http_post("/cgi-bin/component/api_query_auth", { body: {
         component_appid: component_appid,
         authorization_code: authorization_code
-      })
+      } }, { need_access_token: false, format_data: false })
     end
 
     def refresh_authorizer_access_token(authorizer_appid:, authorizer_refresh_token:)
@@ -138,18 +139,18 @@ module WechatThirdPartyPlatform
         component_access_token: get_component_access_token,
         authorizer_appid: authorizer_appid,
         authorizer_refresh_token: authorizer_refresh_token
-      } })
+      } }, { need_access_token: false, format_data: false })
     end
 
     # 小程序登录
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/WeChat_login.html
     def jscode_to_session(appid:, js_code:)
-      http_get("/sns/component/jscode2session", body: {
+      http_get("/sns/component/jscode2session", { body: {
         appid: appid,
         js_code: js_code,
         grant_type: "authorization_code",
         component_appid: component_appid
-      })
+      } }, { need_access_token: false, format_data: false })
     end
 
     # 获取代码草稿列表
@@ -161,7 +162,7 @@ module WechatThirdPartyPlatform
     # 将草稿添加到代码模板库
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code_template/addtotemplate.html
     def addtotemplate(draft_id:)
-      http_post("/wxa/addtotemplate", body: { draft_id: draft_id })
+      http_post("/wxa/addtotemplate", body: { draft_id: draft_id } )
     end
 
     # 获取代码模板列表
@@ -177,14 +178,15 @@ module WechatThirdPartyPlatform
     end
 
     [:get, :post].each do |method|
-      define_method "http_#{method}" do |path, options = {}, need_access_token = true|
+      define_method "http_#{method}" do |path, options = {}, other_config = {}|
+        other_config = other_config.reverse_merge!({ need_access_token: true, format_data: true })
         body = (options[:body] || {}).select { |_, v| !v.nil? }
         headers = (options[:headers] || {}).reverse_merge({
           "Content-Type" => "application/json",
           "Accept-Encoding" => "*"
         })
 
-        if need_access_token
+        if other_config[:need_access_token]
           connector = path.include?("?") ? "&" : "?"
           path = "#{path}#{connector}component_access_token=#{get_component_access_token}"
         end
@@ -203,8 +205,7 @@ module WechatThirdPartyPlatform
                    end
 
         LOGGER.debug("response[#{uuid}]: #{response}")
-
-        response
+        other_config[:format_data] ? WechatThirdPartyPlatform::Result.new(response) : response
       end
     end
   end

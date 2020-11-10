@@ -92,7 +92,7 @@ module WechatThirdPartyPlatform
     def set_default_domain!
       get_domain_response = client.modify_domain(action: :get)
 
-      raise get_domain_response["errmsg"] unless get_domain_response["errcode"] == 0
+      raise get_domain_response.cn_msg unless get_domain_response.success?
 
       # 如果小程序domain配置已包含所有默认domain配置，则不发送修改请求，不然会返回错误信息
       return if (get_domain_response["requestdomain"] & WechatThirdPartyPlatform.requestdomain) == WechatThirdPartyPlatform.requestdomain &&
@@ -108,11 +108,11 @@ module WechatThirdPartyPlatform
         downloaddomain: WechatThirdPartyPlatform.downloaddomain
       )
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       # 如果没有指定 action，则默认将第三方平台登记的小程序业务域名全部添加到该小程序
       resp =  client.setwebviewdomain
-      raise resp["errmsg"] unless resp["errcode"] == 0
+      raise resp.cn_msg unless resp.success?
 
       true
     end
@@ -140,7 +140,7 @@ module WechatThirdPartyPlatform
         ext_json: ext_json.to_json
       )
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       self.trial_submition = Submition.new(
         template_id: template_id,
@@ -168,7 +168,7 @@ module WechatThirdPartyPlatform
     def commit_latest_template!
       response = WechatThirdPartyPlatform.gettemplatelist
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       # TODO 暂时根据id来判断哪个template是最新的
       latest_template = response["template_list"].sort { |a, b| a["template_id"] <=> b["template_id"] }.last
@@ -193,7 +193,7 @@ module WechatThirdPartyPlatform
       # TODO 后期需要支持item_list，preview_info，version_desc等参数
       response = client.submit_audit
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       update(audit_submition: Submition.create!(trial_submition.dup.attributes.merge({ "auditid" => response["auditid"], "auto_release" => auto_release })))
     end
@@ -212,7 +212,7 @@ module WechatThirdPartyPlatform
 
       response = client.release
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       update!(online_submition: audit_submition, audit_submition: nil)
     end
@@ -224,7 +224,7 @@ module WechatThirdPartyPlatform
     def set_base_data!
       info = client.api_get_authorizer_info
 
-      raise info["errmsg"] if info["errmsg"]
+      raise info.cn_msg unless info.success?
 
       authorizer_info = info["authorizer_info"]
       head_img_file = open(authorizer_info["head_img"])

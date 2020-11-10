@@ -129,8 +129,7 @@ module WechatThirdPartyPlatform
                    end
 
         WechatThirdPartyPlatform::LOGGER.debug("response[#{uuid}]: #{response}")
-
-        response
+        WechatThirdPartyPlatform::Result.new(response)
       end
     end
 
