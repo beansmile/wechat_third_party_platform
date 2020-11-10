@@ -14,7 +14,11 @@ module WechatThirdPartyPlatform
     has_one :wechat_application, class_name: "WechatThirdPartyPlatform::Application", foreign_key: :register_id
     belongs_to :application, class_name: "::Application"
 
-    after_save :sync_to_wechat
+    before_save :sync_to_wechat, if: :register_info_changed
+
+    def register_info_changed
+      (changed_attribute_names_to_save & ["name", "code", "legal_persona_wechat", "legal_persona_name"]).present?
+    end
 
     def sync_to_wechat
       response = WechatThirdPartyPlatform.create_fastregisterweapp({
