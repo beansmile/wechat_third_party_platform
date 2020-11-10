@@ -26,12 +26,12 @@ module WechatThirdPartyPlatform
     end
 
     def copy_migration
+      migration_template "migrations/create_wechat_third_party_platform_registers.rb.erb", "db/migrate/create_wechat_third_party_platform_registers.rb"
       migration_template "migrations/create_wechat_third_party_platform_applications.rb.erb", "db/migrate/create_wechat_third_party_platform_applications.rb"
       migration_template "migrations/create_wechat_third_party_platform_submitions.rb.erb", "db/migrate/create_wechat_third_party_platform_submitions.rb"
       migration_template "migrations/create_wechat_third_party_platform_testers.rb.erb", "db/migrate/create_wechat_third_party_platform_testers.rb"
-      migration_template "migrations/create_wechat_third_party_platform_registers.rb.erb", "db/migrate/create_wechat_third_party_platform_registers.rb"
-      migration_template "migrations/add_source_to_wechat_third_party_platform_applications.rb.erb", "db/migrate/add_source_to_wechat_third_party_platform_applications.rb"
-      migration_template "migrations/create_wechat_third_party_platform_visit_data.rb.erb", "db/migrate/create_wechat_third_party_platform_visit_data.rb.erb"
+      migration_template "migrations/create_wechat_third_party_platform_visit_data.rb.erb", "db/migrate/create_wechat_third_party_platform_visit_data.rb"
+      migration_template "migrations/add_submition_reference_to_wechat_third_party_platform_applications.rb.erb", "db/migrate/add_submition_reference_to_wechat_third_party_platform_applications.rb"
     end
 
     def copy_decorators
