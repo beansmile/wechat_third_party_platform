@@ -71,15 +71,15 @@ module WechatThirdPartyPlatform
     protected
 
     def authorized_handler
-      current_application.authorized_handler(msg_hash)
+      current_application&.authorized_handler(msg_hash)
     end
 
     def unauthorized_handler
-      current_application.unauthorized_handler(msg_hash)
+      current_application&.unauthorized_handler(msg_hash)
     end
 
     def updateauthorized_handler
-      current_application.updateauthorized_handler(msg_hash)
+      current_application&.updateauthorized_handler(msg_hash)
     end
 
     # 快速注册小程序审核事件推送
