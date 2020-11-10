@@ -5,14 +5,14 @@ module WechatThirdPartyPlatform::API
     # 获取无数量限制小程序码
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/qrcode/getwxacodeunlimit.html
     def getwxacodeunlimit(scene:, page: nil, width: nil, auto_color: nil, line_color: nil, is_hyaline: nil)
-      http_post("/wxa/getwxacodeunlimit", body: {
+      http_post("/wxa/getwxacodeunlimit", { body: {
         scene: scene,
         page: page,
         width: width,
         auto_color: auto_color,
         line_color: line_color,
         is_hyaline: is_hyaline
-      })
+      } }, { format_data: false })
     end
 
     # 获取有数量限制小程序码
