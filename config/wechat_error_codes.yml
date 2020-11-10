@@ -20,6 +20,10 @@
 40091: 无效的ticket
 40094: 无效的第三方凭证
 40132: 微信号不合法
+42001: access_token 超时，请检查 access_token 的有效期
+42002: refresh_token 超时
+42003: oauth_code 超时
+42007: 用户修改微信密码， accesstoken 和 refreshtoken 失效，需要重新授权
 43016: 小程序未认证
 45009: 接口调用超过限制
 45011: API 调用太频繁，请稍候再试
