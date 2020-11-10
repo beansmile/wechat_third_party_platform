@@ -9,6 +9,6 @@ WechatThirdPartyPlatform.component_appsecret = config[:component_appsecret]
 WechatThirdPartyPlatform.message_token = config[:message_token]
 WechatThirdPartyPlatform.message_key = config[:message_key]
 WechatThirdPartyPlatform.component_phone = config[:component_phone]
-WechatThirdPartyPlatform.set_wxacode_page_option = -> () { Rails.env.production? || online_submition }
+WechatThirdPartyPlatform.set_wxacode_page_option = -> () { online_submition }
 WechatThirdPartyPlatform.requestdomain = [Rails.application.credentials.dig(Rails.env.to_sym, :host)]
 WechatThirdPartyPlatform.downloaddomain = [""]
