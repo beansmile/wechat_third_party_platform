@@ -13,7 +13,7 @@ module WechatThirdPartyPlatform::API
         grant_type: "authorization_code"
       }
 
-      http_get("/sns/component/jscode2session?#{body.to_query}", {}, false)
+      http_get("/sns/component/jscode2session?#{body.to_query}", {}, need_access_token: false)
     end
   end
 end
