@@ -136,10 +136,9 @@ module WechatThirdPartyPlatform
     def refresh_authorizer_access_token(authorizer_appid:, authorizer_refresh_token:)
       http_post("/cgi-bin/component/api_authorizer_token", { body: {
         component_appid: component_appid,
-        component_access_token: get_component_access_token,
         authorizer_appid: authorizer_appid,
         authorizer_refresh_token: authorizer_refresh_token
-      } }, { need_access_token: false, format_data: false })
+      } }, { format_data: false })
     end
 
     # 小程序登录
