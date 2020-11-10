@@ -130,7 +130,7 @@ module WechatThirdPartyPlatform
       http_post("/cgi-bin/component/api_query_auth", { body: {
         component_appid: component_appid,
         authorization_code: authorization_code
-      } }, { need_access_token: false, format_data: false })
+      } }, { format_data: false })
     end
 
     def refresh_authorizer_access_token(authorizer_appid:, authorizer_refresh_token:)
