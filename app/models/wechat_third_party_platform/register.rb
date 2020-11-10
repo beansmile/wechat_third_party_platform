@@ -14,10 +14,16 @@ module WechatThirdPartyPlatform
     has_one :wechat_application, class_name: "WechatThirdPartyPlatform::Application", foreign_key: :register_id
     belongs_to :application, class_name: "::Application"
 
-    before_save :sync_to_wechat, if: :register_info_changed
+    after_create :sync_to_wechat
+    before_update :sync_to_wechat, :reset_state, if: :register_info_changed
 
+    # 如果审核失败状态下，重新更新了数据才做提交
     def register_info_changed
-      (changed_attribute_names_to_save & ["name", "code", "legal_persona_wechat", "legal_persona_name"]).present?
+      (changed_attribute_names_to_save & ["name", "code", "legal_persona_wechat", "legal_persona_name"]).present? && failed?
+    end
+
+    def reset_state
+      pending!
     end
 
     def sync_to_wechat
