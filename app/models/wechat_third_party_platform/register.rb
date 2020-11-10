@@ -25,8 +25,8 @@ module WechatThirdPartyPlatform
           legal_persona_name: legal_persona_name,
           component_phone: component_phone
         })
-      if response["errcode"] != 0
-        self.errors.add(:base, response)
+      unless response.success?
+        self.errors.add(:base, response.cn_msg)
         raise ActiveRecord::RecordInvalid, self
       end
     end

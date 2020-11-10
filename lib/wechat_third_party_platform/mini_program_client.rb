@@ -97,8 +97,9 @@ module WechatThirdPartyPlatform
     end
 
     [:get, :post].each do |method|
-      define_method "http_#{method}" do |path, options = {}, need_access_token = true|
+      define_method "http_#{method}" do |path, options = {}, other_config = {}|
         access_token_expired_retries = 0
+        other_config = other_config.reverse_merge!({ need_access_token: true, format_data: true })
         body = (options[:body] || {}).select { |_, v| !v.nil? }
         headers = (options[:headers] || {}).reverse_merge({
           "Content-Type" => "application/json",
@@ -110,7 +111,11 @@ module WechatThirdPartyPlatform
         uuid = SecureRandom.uuid
 
         response = begin
-                     wechat_path = "#{path}?access_token=#{access_token}" if need_access_token
+                     if other_config[:need_access_token]
+                       connector = path.include?("?") ? "&" : "?"
+                       wechat_path = "#{path}#{connector}access_token=#{access_token}"
+                     end
+
                      WechatThirdPartyPlatform::LOGGER.debug("request[#{uuid}]: method: #{method}, url: #{wechat_path}, body: #{body}, headers: #{headers}")
 
                      resp = self.class.send(method, wechat_path, body: raw_body ? body : JSON.pretty_generate(body), headers: headers, timeout: WechatThirdPartyPlatform::TIMEOUT).body
@@ -129,8 +134,7 @@ module WechatThirdPartyPlatform
                    end
 
         WechatThirdPartyPlatform::LOGGER.debug("response[#{uuid}]: #{response}")
-
-        response
+        other_config[:format_data] ? WechatThirdPartyPlatform::Result.new(response) : response
       end
     end
 

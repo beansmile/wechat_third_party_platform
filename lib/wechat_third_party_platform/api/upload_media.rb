@@ -12,15 +12,14 @@ module WechatThirdPartyPlatform::API
         temp_file = Tempfile.new([file_name, ".png"], binmode: true)
         temp_file << result.body
 
-        response = http_post("/cgi-bin/media/upload?access_token=#{access_token}&type=image",
-          {
-            body: {
-              media: File.new(temp_file.path)
-            },
-            headers: {
-              "Content-Type" => "multipart/form-data"
-            }
-          }, false)
+        response = http_post("/cgi-bin/media/upload?type=image", {
+          body: {
+            media: File.new(temp_file.path)
+          },
+          headers: {
+            "Content-Type" => "multipart/form-data"
+          }
+        })
         temp_file.close
         if response["media_id"]
           response["media_id"]

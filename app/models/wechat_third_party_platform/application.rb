@@ -4,6 +4,7 @@ module WechatThirdPartyPlatform
   class Application < ApplicationRecord
     require "open-uri"
 
+    include AASM
     include AccessTokenConcern
     include AuthorizationHandlerConcern
 
@@ -40,9 +41,21 @@ module WechatThirdPartyPlatform
     enum authorization_status: {
       authorizer_pending: 0,
       authorizer_authorized: 1,
-      authorizer_unauthorized: 3,
-      authorizer_updateauthorized: 4
+      authorizer_unauthorized: 2,
+      authorizer_updateauthorized: 3
     }
+
+    aasm column: :authorization_status, enum: true do
+      state :authorizer_pending, initial: true
+      state :authorizer_authorized
+      state :authorizer_unauthorized
+      state :authorizer_updateauthorized
+
+      event :authorization_unauthorize, after_commit: :unbind_application! do
+        transitions from: [:authorizer_pending, :authorizer_authorized, :authorizer_updateauthorized],
+                    to: :authorizer_unauthorized
+      end
+    end
 
     belongs_to :audit_submition, class_name: "WechatThirdPartyPlatform::Submition", optional: true
     belongs_to :register, class_name: "WechatThirdPartyPlatform::Register", optional: true
@@ -79,7 +92,7 @@ module WechatThirdPartyPlatform
     def set_default_domain!
       get_domain_response = client.modify_domain(action: :get)
 
-      raise get_domain_response["errmsg"] unless get_domain_response["errcode"] == 0
+      raise get_domain_response.cn_msg unless get_domain_response.success?
 
       # 如果小程序domain配置已包含所有默认domain配置，则不发送修改请求，不然会返回错误信息
       return if (get_domain_response["requestdomain"] & WechatThirdPartyPlatform.requestdomain) == WechatThirdPartyPlatform.requestdomain &&
@@ -95,11 +108,11 @@ module WechatThirdPartyPlatform
         downloaddomain: WechatThirdPartyPlatform.downloaddomain
       )
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       # 如果没有指定 action，则默认将第三方平台登记的小程序业务域名全部添加到该小程序
       resp =  client.setwebviewdomain
-      raise resp["errmsg"] unless resp["errcode"] == 0
+      raise resp.cn_msg unless resp.success?
 
       true
     end
@@ -127,7 +140,7 @@ module WechatThirdPartyPlatform
         ext_json: ext_json.to_json
       )
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       self.trial_submition = Submition.new(
         template_id: template_id,
@@ -155,7 +168,7 @@ module WechatThirdPartyPlatform
     def commit_latest_template!
       response = WechatThirdPartyPlatform.gettemplatelist
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       # TODO 暂时根据id来判断哪个template是最新的
       latest_template = response["template_list"].sort { |a, b| a["template_id"] <=> b["template_id"] }.last
@@ -180,7 +193,7 @@ module WechatThirdPartyPlatform
       # TODO 后期需要支持item_list，preview_info，version_desc等参数
       response = client.submit_audit
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       update(audit_submition: Submition.create!(trial_submition.dup.attributes.merge({ "auditid" => response["auditid"], "auto_release" => auto_release })))
     end
@@ -199,7 +212,7 @@ module WechatThirdPartyPlatform
 
       response = client.release
 
-      raise response["errmsg"] unless response["errcode"] == 0
+      raise response.cn_msg unless response.success?
 
       update!(online_submition: audit_submition, audit_submition: nil)
     end
@@ -211,7 +224,7 @@ module WechatThirdPartyPlatform
     def set_base_data!
       info = client.api_get_authorizer_info
 
-      raise info["errmsg"] if info["errmsg"]
+      raise info.cn_msg unless info.success?
 
       authorizer_info = info["authorizer_info"]
       head_img_file = open(authorizer_info["head_img"])
@@ -266,9 +279,11 @@ module WechatThirdPartyPlatform
 
       return unless register
 
-      register.update(state: "failed", audit_result: msg_hash) and return unless msg_hash["status"] == 0
-
-      ThirdFasteregisterJob.perform_later(register, msg_hash["auth_code"])
+      if info["status"].to_i == 0
+        ThirdFasteregisterJob.perform_later(register, msg_hash["auth_code"])
+      else
+        register.update(state: "failed", audit_result: msg_hash)
+      end
     end
 
     private
@@ -279,6 +294,10 @@ module WechatThirdPartyPlatform
 
     def set_name_changed_status
       self.name_changed_status = "name_submitting"
+    end
+
+    def unbind_application!
+      project_application&.unbind_application!
     end
   end
 end

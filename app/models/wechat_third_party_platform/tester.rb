@@ -23,19 +23,15 @@ module WechatThirdPartyPlatform
     def create_wechat_tester
       resp = application.client.bind_tester(wechatid: wechat_id)
 
-      if resp["errcode"] == 0
-        self.userstr = resp["userstr"]
-      else
-        raise resp["errmsg"]
-      end
+      raise resp.cn_msg unless resp.success?
+      self.userstr = resp["userstr"]
     end
 
     def remove_wechat_tester
       resp = application.client.unbind_tester(userstr: userstr, wechatid: wechat_id)
 
-      if resp["errcode"] != 0
-        raise resp["errmsg"]
-      end
+      raise resp.cn_msg unless resp.success?
+
     end
   end
 end
