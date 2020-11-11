@@ -49,10 +49,10 @@ module WechatThirdPartyPlatform
     # 获取授权方的帐号基本信息
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/api_get_authorizer_info.html
     def api_get_authorizer_info
-      WechatThirdPartyPlatform.http_post("/cgi-bin/component/api_get_authorizer_info", body: {
+      WechatThirdPartyPlatform.http_post("/cgi-bin/component/api_get_authorizer_info", { body: {
         component_appid: WechatThirdPartyPlatform.component_appid,
         authorizer_appid: appid
-      })
+      } }, { format_data: false })
     end
 
     def refresh_record_access_token
@@ -130,7 +130,8 @@ module WechatThirdPartyPlatform
                      retry if access_token_expired_retries == 1
                      resp
                    rescue *WechatThirdPartyPlatform::HTTP_ERRORS
-                     { "errmsg" => "连接超时" }
+                     # 参考微信errcode: https://developers.weixin.qq.com/doc/oplatform/Return_codes/Return_code_descriptions_new.html
+                     { "errcode" => 9206901, "errmsg" => "连接超时" }
                    end
 
         WechatThirdPartyPlatform::LOGGER.debug("response[#{uuid}]: #{response}")

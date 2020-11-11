@@ -200,7 +200,7 @@ module WechatThirdPartyPlatform
                    rescue JSON::ParserError
                      resp
                    rescue *HTTP_ERRORS
-                     { "errmsg" => "连接超时" }
+                     { "errcode" => 9206901, "errmsg" => "连接超时" }
                    end
 
         LOGGER.debug("response[#{uuid}]: #{response}")

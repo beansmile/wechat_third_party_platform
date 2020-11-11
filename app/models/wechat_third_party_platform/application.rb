@@ -224,7 +224,7 @@ module WechatThirdPartyPlatform
     def set_base_data!
       info = client.api_get_authorizer_info
 
-      raise info.cn_msg unless info.success?
+      raise "获取小程序基本信息失败：#{info["errmsg"]}" if info["errcode"] && info["errcode"] != 0
 
       authorizer_info = info["authorizer_info"]
       head_img_file = open(authorizer_info["head_img"])

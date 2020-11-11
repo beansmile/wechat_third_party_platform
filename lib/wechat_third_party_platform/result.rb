@@ -4,7 +4,7 @@ module WechatThirdPartyPlatform
   class Result < ::Hash
     @@wechat_error_codes = YAML.load_file("#{WechatThirdPartyPlatform::Engine.root}/config/wechat_error_codes.yml")
 
-    SUCCESS_FLAG = 'ok'.freeze
+    SUCCESS_FLAG = "ok".freeze
 
     def initialize(result)
       result.each_pair do |k, v|
