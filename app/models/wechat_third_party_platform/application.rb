@@ -110,9 +110,12 @@ module WechatThirdPartyPlatform
 
       raise response.cn_msg unless response.success?
 
-      # 如果没有指定 action，则默认将第三方平台登记的小程序业务域名全部添加到该小程序
-      resp =  client.setwebviewdomain
-      raise resp.cn_msg unless resp.success?
+      # 个人小程序不支持调用 setwebviewdomain 接口
+      if principal_name != "个人"
+        # 如果没有指定 action，则默认将第三方平台登记的小程序业务域名全部添加到该小程序
+        resp =  client.setwebviewdomain
+        raise resp.cn_msg unless resp.success?
+      end
 
       true
     end
