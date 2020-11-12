@@ -230,18 +230,22 @@ module WechatThirdPartyPlatform
       raise "获取小程序基本信息失败：#{info["errmsg"]}" if info["errcode"] && info["errcode"] != 0
 
       authorizer_info = info["authorizer_info"]
-      head_img_file = open(authorizer_info["head_img"])
-      qrcode_url_file = open(authorizer_info["qrcode_url"])
-      head_img_blob = ActiveStorage::Blob.create_after_upload!(io: head_img_file, filename: SecureRandom.uuid, content_type: head_img_file.meta["content-type"])
-      qrcode_url_blob = ActiveStorage::Blob.create_after_upload!(io: qrcode_url_file, filename: SecureRandom.uuid, content_type: qrcode_url_file.meta["content-type"])
+      if authorizer_info["head_img"].present?
+        head_img_file = open(authorizer_info["head_img"])
+        head_img_blob = ActiveStorage::Blob.create_after_upload!(io: head_img_file, filename: SecureRandom.uuid, content_type: head_img_file.meta["content-type"])
+      end
+      if authorizer_info["qrcode_url"].present?
+        qrcode_url_file = open(authorizer_info["qrcode_url"])
+        qrcode_url_blob = ActiveStorage::Blob.create_after_upload!(io: qrcode_url_file, filename: SecureRandom.uuid, content_type: qrcode_url_file.meta["content-type"])
+      end
 
       update!(
         nick_name: authorizer_info["nick_name"],
         user_name: authorizer_info["user_name"],
         principal_name: authorizer_info["principal_name"],
         mini_program_info: authorizer_info["MiniProgramInfo"],
-        head_img: head_img_blob.signed_id,
-        qrcode_url: qrcode_url_blob.signed_id,
+        head_img: head_img_blob&.signed_id,
+        qrcode_url: qrcode_url_blob&.signed_id,
         refresh_token: info.dig("authorization_info", "authorizer_refresh_token") || refresh_token
       )
 
