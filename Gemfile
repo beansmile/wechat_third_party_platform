@@ -17,4 +17,4 @@ gemspec
 gem "byebug", group: [:development, :test]
 gem "dotenv-rails", groups: [:development, :test]
 
-gem "custom_grape", github: "beansmile/custom_grape", branch: "master"
+gem "custom_grape", github: "beansmile/custom_grape"
