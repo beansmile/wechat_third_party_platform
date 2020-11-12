@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module WechatThirdPartyPlatform::GrapeAPI::Entities
-  class SimpleRegister < CustomGrape::Entity
+  class SimpleRegister < Model
     expose :name
     expose :code
     expose :code_type

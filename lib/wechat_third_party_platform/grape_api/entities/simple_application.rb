@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module WechatThirdPartyPlatform::GrapeAPI::Entities
-  class SimpleApplication < CustomGrape::Entity
+  class SimpleApplication < Model
     expose :appid
     expose :account_type
     expose :nick_name

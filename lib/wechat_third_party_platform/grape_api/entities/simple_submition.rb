@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module WechatThirdPartyPlatform::GrapeAPI::Entities
-  class SimpleSubmition < CustomGrape::Entity
+  class SimpleSubmition < Model
     expose :template_id
     expose :user_version
     expose :user_desc

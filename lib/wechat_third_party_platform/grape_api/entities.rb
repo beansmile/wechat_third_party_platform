@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module WechatThirdPartyPlatform
   module GrapeAPI
     module Entities
@@ -5,6 +6,7 @@ module WechatThirdPartyPlatform
   end
 end
 
+require "wechat_third_party_platform/grape_api/entities/model"
 [
   :submition,
   :application,
