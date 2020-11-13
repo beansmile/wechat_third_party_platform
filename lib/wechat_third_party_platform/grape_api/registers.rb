@@ -21,13 +21,13 @@ module WechatThirdPartyPlatform::GrapeAPI
             creator_id: current_user.id
           })
 
-          standard_update(register, resource_params, AdminAPI::Entities::WechatThirdPartyPlatform::RegisterDetail)
+          standard_update(register, resource_params, resource_entity)
         end
       end
 
       desc "获取当前应用快速注册详情"
       get "info" do
-        present current_application.register, with: ::AdminAPI::Entities::WechatThirdPartyPlatform::RegisterDetail
+        present current_application.register, with: resource_entity
       end
     end
   end
