@@ -249,7 +249,7 @@ module WechatThirdPartyPlatform
         refresh_token: info.dig("authorization_info", "authorizer_refresh_token") || refresh_token
       )
 
-      project_application&.update!(name: authorizer_info["nick_name"]) if authorizer_info["nick_name"]
+      project_application&.update!(name: authorizer_info["nick_name"]) if authorizer_info["nick_name"].present?
     end
 
     def name_to_effective!
