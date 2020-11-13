@@ -19,6 +19,7 @@ module WechatThirdPartyPlatform
 
   ACCESS_TOKEN_CACHE_KEY = "wtpp_access_token"
   PRE_AUTH_CODE_CACHE_KEY = "wtpp_pre_auth_code"
+  ENV_FALLBACK_ARRAY = [:production, :staging, :development]
 
   HTTP_ERRORS = [
     EOFError,
@@ -51,29 +52,50 @@ module WechatThirdPartyPlatform
   @@downloaddomain ||= []
 
   class<< self
+    # TODO: 第三方平台上设置的是正式环境域名，Staging上没办法调起微信授权页
     def component_auth_url(application_id:)
       "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=#{component_appid}&pre_auth_code=#{api_create_preauthcode}&redirect_uri=#{auth_redirect_url}/#{application_id}&auth_type=2"
     end
 
     def get_component_access_token
       access_token = Rails.cache.fetch(ACCESS_TOKEN_CACHE_KEY)
+      return access_token if access_token
 
-      if access_token.nil?
-        component_verify_ticket = Rails.cache.fetch("wtpp_verify_ticket")
-        raise "component verify ticket not exist" unless component_verify_ticket
-        resp = component_access_token(component_verify_ticket: component_verify_ticket)
-        access_token = resp["component_access_token"]
-        Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, access_token, expires_in: 115.minutes)
+      ENV_FALLBACK_ARRAY.each do |env|
+        if Rails.env == env.to_s
+          if access_token.nil?
+
+            resp = component_access_token
+            access_token = resp["component_access_token"]
+            Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, access_token, expires_in: 115.minutes)
+          end
+
+          break
+        else
+          host = Rails.application.credentials.dig(env, :host)
+          # 未部署的环境暂时不配置host
+          next if host.blank?
+
+          resp = get("#{host}/admin_api/v1/wechat_third_party_platform/applications/component_access_token", headers: { "api-authorization-token" => Rails.application.credentials.dig(env, WechatThirdPartyPlatform::Application.api_authorization_token_key) })
+          next unless token = resp["component_access_token"]
+          Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, access_token, expires_in: 5.minutes)
+
+          break
+        end
       end
+
       access_token
     end
 
     # 令牌
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/api/component_access_token.html
-    def component_access_token(component_verify_ticket:)
+    def component_access_token
+      component_verify_ticket = Rails.cache.fetch("wtpp_verify_ticket")
+      raise "component verify ticket not exist" unless component_verify_ticket
+
       http_post("/cgi-bin/component/api_component_token", { body: {
-        component_appid: component_appid,
-        component_appsecret: component_appsecret,
+        component_appid: WechatThirdPartyPlatform.component_appid,
+        component_appsecret: WechatThirdPartyPlatform.component_appsecret,
         component_verify_ticket: component_verify_ticket
       } }, { need_access_token: false })
     end

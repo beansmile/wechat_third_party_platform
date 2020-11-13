@@ -14,6 +14,15 @@ module WechatThirdPartyPlatform::GrapeAPI
 
         { access_token: WechatThirdPartyPlatform::Application.find_by!(appid: params[:appid]).access_token }
       end
+
+      desc "获取component access token", summary: "获取component access token"
+      get "component_access_token" do
+        if request.headers["Api-Authorization-Token"] != Rails.application.credentials.dig(Rails.env.to_sym, WechatThirdPartyPlatform::Application.api_authorization_token_key)
+          error!({ error_message: "401 Unauthorized" }, 401)
+        end
+
+        { component_access_token: WechatThirdPartyPlatform.get_component_access_token }
+      end
     end
   end
 end
