@@ -7,7 +7,7 @@ module WechatThirdPartyPlatform::GrapeAPI
         response_error("请先去授权小程序！") unless current_wechat_application_client
       end
 
-      desc "获取小程序二维码", detail: <<-NOTES.strip_heredoc
+      desc "获取小程序码（生产环境且已有在线版本）或体验版二维码", detail: <<-NOTES.strip_heredoc
       ```json
       {
         "path": "https://cdn.staging.magicbeanmall.com/weizhan-staging-files/d0711c20e35_qrcode.jpg"
@@ -24,14 +24,18 @@ module WechatThirdPartyPlatform::GrapeAPI
         optional :binary, type: Grape::API::Boolean, desc: "是获取binary还是返回图片路径"
       end
       get "mini_program_qrcode" do
-        response = current_wechat_application_client.getwxacodeunlimit(
-          scene: params[:scene],
-          page: current_application.wechat_application.online_submition_id ? params[:path] : nil,
-          width: params[:width],
-          auto_color: params[:auto_color],
-          line_color: params[:line_color],
-          is_hyaline: params[:is_hyaline]
-        )
+        response = if Rails.env.production? && current_application.wechat_application.online_submition_id
+                     current_wechat_application_client.getwxacodeunlimit(
+                       scene: params[:scene],
+                       page: params[:path],
+                       width: params[:width],
+                       auto_color: params[:auto_color],
+                       line_color: params[:line_color],
+                       is_hyaline: params[:is_hyaline]
+                     )
+                   else
+                     current_wechat_application_client.get_qrcode(path: "#{params[:path]}?#{params[:scene]}")
+                   end
 
         if response.is_a?(String)
           if params[:binary]
@@ -53,7 +57,7 @@ module WechatThirdPartyPlatform::GrapeAPI
             { path: blob.service_url }
           end
         else
-          response_error(response[:errmsg])
+          response_error(response["errmsg"])
         end
       end
     end
