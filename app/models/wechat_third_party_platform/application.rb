@@ -286,7 +286,7 @@ module WechatThirdPartyPlatform
 
       return unless register
 
-      state = info["status"].to_i == 0 ? 'success' : 'failed'
+      state = info["status"].to_i == 0 ? "success" : "failed"
       register.update(state: state, audit_result: msg_hash)
 
       ThirdFasteregisterJob.perform_later(register, msg_hash["auth_code"]) if register.success?
