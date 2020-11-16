@@ -77,7 +77,7 @@ module WechatThirdPartyPlatform
           next if host.blank?
 
           resp = get("#{host}/admin_api/v1/wechat_third_party_platform/applications/component_access_token", headers: { "api-authorization-token" => Rails.application.credentials.dig(env, WechatThirdPartyPlatform::Application.api_authorization_token_key) })
-          next unless token = resp["component_access_token"]
+          next unless access_token = resp["component_access_token"]
           Rails.cache.write(ACCESS_TOKEN_CACHE_KEY, access_token, expires_in: 5.minutes)
 
           break
