@@ -50,7 +50,7 @@ module WechatThirdPartyPlatform
     def can_refresh_access_token?
       ENV_FALLBACK_ARRAY.each do |env_array|
         if env_array.any? { |env| Rails.application.credentials.dig(env, host_key) }
-          return Rails.env.to_sym.in?(env_array) && refresh_token && project_application.present?
+          return Rails.env.to_sym.in?(env_array) && refresh_token.present? && project_application.present? && !authorizer_unauthorized?
         end
       end
     end
