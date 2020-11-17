@@ -19,7 +19,7 @@ module WechatThirdPartyPlatform::GrapeAPI
           requires :user_version
         end
         post :commit do
-          authorize_and_run_member_action(:commit, {}, resource_params)
+          authorize_and_run_member_action(:commit, {}, template_id: params[:template_id], user_desc: params[:user_desc], user_version: params[:user_version])
         end
 
         desc "上传最新版本代码"
