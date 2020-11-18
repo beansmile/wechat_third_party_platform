@@ -11,6 +11,16 @@ module WechatThirdPartyPlatform::GrapeAPI
         end
       end
 
+      params do
+        requires :weapp_support_version, type: String
+        requires :application_ids, type: Array[Integer]
+      end
+      post "set_weapp_support_version", desc: "设置最低基础库版本" do
+        authorize! :set_weapp_support_version, resource_class
+        WechatThirdPartyPlatform::SetAllWeappSupportVersionJob.perform_later(params[:application_ids], params[:weapp_support_version])
+        response_success
+      end
+
       route_param :id do
         desc "上传代码"
         params do
@@ -123,6 +133,16 @@ module WechatThirdPartyPlatform::GrapeAPI
 
           resource.enqueue_set_base_data
           response_success
+        end
+
+        get "get_weapp_support_version", desc: "获取最低基础库版本" do
+          authorize! :read, resource
+          resp = resource.client.getweappsupportversion
+          if resp["errcode"] == 0
+            present resp
+          else
+            response_error(resp["errmsg"])
+          end
         end
       end
     end

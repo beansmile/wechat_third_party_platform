@@ -65,7 +65,7 @@ module WechatThirdPartyPlatform::API
     # 设置最低基础库版本
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code/setweappsupportversion.html
     def setweappsupportversion(version:)
-      http_post("/cgi-binwxopen/setweappsupportversion", body: { version: version })
+      http_post("/cgi-bin/wxopen/setweappsupportversion", body: { version: version })
     end
 
     # 加急审核申请
