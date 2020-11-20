@@ -31,6 +31,7 @@ end
   :data_analysis,
   :utils,
   :registers,
+  :template_settings,
 ].each do |name|
   require "wechat_third_party_platform/grape_api/#{name}"
 end

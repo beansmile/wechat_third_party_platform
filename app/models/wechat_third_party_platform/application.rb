@@ -173,8 +173,9 @@ module WechatThirdPartyPlatform
 
       raise response.cn_msg unless response.success?
 
-      # TODO 暂时根据id来判断哪个template是最新的
-      latest_template = response["template_list"].sort { |a, b| a["template_id"] <=> b["template_id"] }.last
+      template_list = response["template_list"].sort { |a, b| a["template_id"] <=> b["template_id"] }
+      template_setting = TemplateSetting.instance
+      latest_template = template_list.detect { |template| template["template_id"] == template_setting.latest_template_id } || template_list.last
 
       raise "无任何代码模板" if latest_template.nil?
 
