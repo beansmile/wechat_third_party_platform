@@ -109,7 +109,7 @@ module WechatThirdPartyPlatform
     # msg_hash为{"AppId"=>"wx6049dd9d0df6e593", "CreateTime"=>"1603094188", "InfoType"=>"component_verify_ticket", "ComponentVerifyTicket"=>"ticket@@@Hcp1sWsxoI7cuskY_boQJLDC6RPKc5PR7v7SzeHjwFv2CZAyEJCSOEAptlmRLuFmLMyEcYoMpcVPFr4w5jSn9Q"}
     def component_verify_ticket_handler
       wtpp_verify_ticket = msg_hash["ComponentVerifyTicket"]
-      Rails.cache.write("wtpp_verify_ticket", wtpp_verify_ticket, expires_in: 115.minutes)
+      Rails.cache.write(WechatThirdPartyPlatform.wtpp_verify_ticket_cache_key, wtpp_verify_ticket, expires_in: 115.minutes)
     end
 
     def current_application
