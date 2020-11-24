@@ -15,7 +15,7 @@ module WechatThirdPartyPlatform::API
 
     # 获取体验版二维码
     # https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/code/get_qrcode.html
-    def get_qrcode(path:)
+    def get_qrcode(path: nil)
       http_get("/wxa/get_qrcode?path=#{ERB::Util.url_encode(path)}", {}, format_data: false)
     end
 
