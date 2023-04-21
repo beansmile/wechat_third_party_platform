@@ -58,6 +58,9 @@ module WechatThirdPartyPlatform
     def refresh_access_token
       if can_refresh_access_token?
         resp = WechatThirdPartyPlatform.refresh_authorizer_access_token(authorizer_appid: appid, authorizer_refresh_token: refresh_token)
+
+        raise resp.inspect if resp["authorizer_access_token"].blank? || resp["authorizer_refresh_token"].blank?
+
         update!(access_token: resp["authorizer_access_token"], refresh_token: resp["authorizer_refresh_token"])
       end
     end
